@@ -70,6 +70,32 @@ export default function Gate() {
   )
 }
 
+// اسلاید عکس‌های بالای صفحه‌ی ورود؛ هر ۴ ثانیه با محو شدن عوض می‌شود
+const SLIDES = [
+  ['1522337360788-8b13dee7a37e', 'موهای زیبا، بی‌دغدغه'],
+  ['1773688189414-7637b9b138e1', 'میکاپ با آرتیست محبوب‌تان'],
+  ['1774814304885-bb5cc796a6c3', 'عروس شوید، با خیال راحت'],
+  ['1570172619644-dfd03ed5d881', 'پوست درخشان، یک نوبت فاصله'],
+  ['1785456283212-338f5bc44d50', 'رنگ و لایت دلخواه شما'],
+  ['1709477542149-f4e0e21d590b', 'برای هر مناسبت، آماده'],
+]
+function HeroSlides() {
+  const [i, setI] = useState(0)
+  useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % SLIDES.length), 4000); return () => clearInterval(t) }, [])
+  return (
+    <div className="login-hero">
+      <AnimatePresence>
+        <motion.img key={i} src={img(SLIDES[i][0])} alt="" initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.1 }} />
+      </AnimatePresence>
+      <div className="lh-top"><Logo size={20} light en={false} /></div>
+      <div className="lh-bottom">
+        <AnimatePresence mode="wait"><motion.b key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.4 }}>{SLIDES[i][1]}</motion.b></AnimatePresence>
+        <span className="lh-dots">{SLIDES.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</span>
+      </div>
+    </div>
+  )
+}
+
 // ---------- ورود ----------
 function Login({ go }) {
   const { db, signIn } = useStore()
@@ -86,18 +112,15 @@ function Login({ go }) {
   const demo = (role) => { const a = demoAccounts(db).find((x) => x.role === role); signIn(a.username, DEMO_PASS) }
   return (
     <motion.form className="gate-in login" {...slide} onSubmit={submit}>
-      <div className="login-hero">
-        <img src={img(PH.hero[0])} alt="" />
-        <div><Logo size={24} light /><em className="en">Beauty, beautifully booked.</em></div>
-      </div>
+      <HeroSlides />
       <h1>خوش آمدید</h1>
       <p className="muted">برای ورود، نام کاربری یا شماره موبایل و رمز عبورتون رو وارد کنید.</p>
       <Field label="نام کاربری یا موبایل">
-        <input className="in" dir="ltr" autoComplete="username" value={user} onChange={(e) => { setUser(e.target.value); setErr('') }} placeholder="negar یا 0912…" />
+        <input className="in" dir="ltr" autoComplete="username" value={user} onChange={(e) => { setUser(e.target.value); setErr('') }} placeholder="نام کاربری یا شماره موبایل" />
       </Field>
       <Field label="رمز عبور" error={err}>
         <div className="pass">
-          <input className="in" dir="ltr" type={see ? 'text' : 'password'} autoComplete="current-password" value={pass} onChange={(e) => { setPass(e.target.value); setErr('') }} placeholder="••••" />
+          <input className="in" dir="ltr" type={see ? 'text' : 'password'} autoComplete="current-password" value={pass} onChange={(e) => { setPass(e.target.value); setErr('') }} placeholder="رمز عبور" />
           <button type="button" onClick={() => setSee(!see)} aria-label="نمایش رمز"><Icon n="eye" s={18} /></button>
         </div>
       </Field>
@@ -179,7 +202,7 @@ function Signup({ go }) {
             <Field label={artist ? 'آیدی پیج شما (انگلیسی)' : 'نام کاربری (انگلیسی)'} error={f.username && !userOk ? 'فقط حروف انگلیسی، عدد، نقطه یا _ (۳ تا ۲۰ حرف)' : userTaken ? 'این نام کاربری گرفته شده' : ''}>
               <input className="in" dir="ltr" value={f.username} onChange={(e) => set({ username: e.target.value.trim().toLowerCase() })} placeholder="negar.k" />
             </Field>
-            <Field label="رمز عبور (حداقل ۴ رقم یا حرف)"><input className="in" dir="ltr" type="password" value={f.pass} onChange={(e) => set({ pass: e.target.value })} placeholder="••••" /></Field>
+            <Field label="رمز عبور (حداقل ۴ رقم یا حرف)"><input className="in" dir="ltr" type="password" value={f.pass} onChange={(e) => set({ pass: e.target.value })} placeholder="رمز عبور" /></Field>
             <button className="btn primary block lg" disabled={f.name.trim().length < 2 || !userOk || userTaken || !passOk} onClick={() => setStep(3)}>ادامه</button>
           </>}
           {artist && step === 3 && <>

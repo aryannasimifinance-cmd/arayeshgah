@@ -255,3 +255,19 @@
 .chips.sub { margin-top: -2px; padding-bottom: 10px; }
 .nw-svc { display: inline-block; align-self: flex-start; margin-top: 4px; padding: 2px 8px; border-radius: 8px; background: rgba(255, 255, 255, .22); font-size: 10.5px; }
 .gate-in { scrollbar-width: none; } .gate-in::-webkit-scrollbar { display: none; }
+
+/* ورود: اسلاید عکس تمیز */
+.login-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.login-hero > .lh-top { position: absolute; top: 0; left: 0; right: 0; padding: 16px 18px 30px; background: linear-gradient(rgba(21, 19, 18, .45), transparent); display: flex; justify-content: flex-start; }
+.login-hero > .lh-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 18px 14px; background: linear-gradient(transparent, rgba(21, 19, 18, .6)); color: #fff; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.lh-bottom b { font-size: 16px; text-shadow: 0 2px 10px rgba(0, 0, 0, .3); }
+.lh-dots { display: flex; gap: 4px; padding-bottom: 6px; }
+.lh-dots i { width: 5px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .5); transition: all .4s; }
+.lh-dots i.on { width: 16px; background: #fff; }
+/* راهنمای فارسی در کادرهای چپ‌به‌راست، راست‌چین بماند */
+.in[dir="ltr"]:placeholder-shown { direction: rtl; }
+.in::placeholder { color: var(--muted); font-family: var(--fa); letter-spacing: 0; }
+.login-hero > .lh-top { bottom: auto; flex-direction: row; background: linear-gradient(rgba(21, 19, 18, .45), transparent); }
+.login-hero > .lh-bottom { top: auto; flex-direction: row; }
+.login-hero > .lh-top { background: linear-gradient(rgba(21, 19, 18, .4), transparent) !important; padding-bottom: 40px; }
+.login-hero > .lh-bottom { background: linear-gradient(transparent, rgba(21, 19, 18, .6)) !important; }
