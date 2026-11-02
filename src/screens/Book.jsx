@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
 import { Icon, Sheet } from '../components/ui'
-import { Glyph, Portrait } from '../components/Art'
+import { Glyph, MapArt, Portrait } from '../components/Art'
 import { TileMap } from '../components/Maps'
 import { CATS, CAT, DAYPARTS, byCat, fmtDur } from '../lib/catalog'
 import { CITIES, CITY_IDS } from '../lib/geo'
@@ -114,7 +114,7 @@ export function Finder({ onMap }) {
         <div className="finder-top">
           <div className="f-ring" style={{ '--p': done / 3 }}><span>{done === 3 ? <Icon n="check" s={14} w={2.6} /> : `${fa(done)}/۳`}</span></div>
           <Magnifier step={done} />
-          <h1>جستجو</h1>
+          <h1>جستجوی خدمات زیبایی</h1>
           <div className="finder-dots">{photos.map((_, k) => <i key={k} className={k === slide % photos.length ? 'on' : ''} />)}</div>
         </div>
 
@@ -142,7 +142,7 @@ export function Finder({ onMap }) {
               {me.city === c && <motion.span layoutId="f-city" className="f-on" transition={{ type: 'spring', stiffness: 500, damping: 32 }} />}
             </motion.button>
           ))}
-          <button className="f-mapbtn" onClick={onMap}><Icon n="map" s={22} /><b>روی نقشه</b><small>انتخاب منطقه</small></button>
+          <button className="f-mapbtn" onClick={onMap}><MapArt /><span className="map-chip"><Icon n="pin" s={15} /><b>روی نقشه</b></span></button>
         </div>
         <div className="f-areas-rail" ref={rail}>
           <button className={!q.areas.length ? 'on' : ''} onClick={() => { set({ areas: [] }); touch('where') }}>همه‌ی {C.name}</button>

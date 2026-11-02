@@ -57,3 +57,68 @@ export function Portrait({ a, size = 64, ring = true }) {
     </span>
   )
 }
+
+// نقشه‌ی تزئینی پس‌زمینه‌ی دکمه‌ی «روی نقشه»: بلوک‌ها، خیابان‌ها، پارک، رود و پین‌ها
+export function MapArt() {
+  return (
+    <svg className="map-art" viewBox="0 0 120 60" preserveAspectRatio="xMidYMid slice" aria-hidden>
+      <rect width="120" height="60" fill="#EFE7DC" />
+      <path d="M0 8h34v14H0zM40 0h30v18H40zM76 0h44v12H76zM0 28h22v32H0zM28 26h30v14H28zM64 22h22v20H64zM92 18h28v16H92zM28 46h40v14H28zM74 48h46v12H74z" fill="#F8F3EC" />
+      <path d="M92 38h28v8H92zM40 0h12v10H40z" fill="#CFE3C1" />
+      <path d="M-4 52C18 44 30 58 54 50s38-10 70-2" fill="none" stroke="#B9D7E6" strokeWidth="6" />
+      <g fill="none" stroke="#fff" strokeLinecap="round">
+        <path d="M0 24h120M0 43h120M25 0v60M61 0v60M89 0v60" strokeWidth="3.4" />
+        <path d="M0 4 120 56" strokeWidth="4.5" stroke="#F3D59B" />
+      </g>
+      <g fill="#E0584F" stroke="#fff" strokeWidth="1.2">
+        <path d="M43 30c0-3.3 2.4-5.5 5-5.5s5 2.2 5 5.5c0 4-5 8.5-5 8.5s-5-4.5-5-8.5Z" /><path d="M94 16c0-2.6 1.9-4.3 4-4.3s4 1.7 4 4.3c0 3.1-4 6.6-4 6.6s-4-3.5-4-6.6Z" fill="#C7707A" /><path d="M10 40c0-2.2 1.6-3.6 3.4-3.6s3.4 1.4 3.4 3.6c0 2.7-3.4 5.6-3.4 5.6S10 42.7 10 40Z" fill="#8E6E63" />
+      </g>
+    </svg>
+  )
+}
+
+// تصویرسازی‌های برداری کاشی‌های «انتخاب سریع» (۱۶۰×۸۰)
+const QA = {
+  today: ['#FFE3D6', '#F6B9A3', <>
+    <rect x="58" y="16" width="44" height="42" rx="8" fill="#fff" /><path d="M58 24a8 8 0 0 1 8-8h28a8 8 0 0 1 8 8v6H58Z" fill="#E0584F" />
+    <path d="M68 12v8M92 12v8" stroke="#8B3A33" strokeWidth="3" strokeLinecap="round" />
+    <path d="m70 44 7 6 13-13" fill="none" stroke="#E0584F" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="108" cy="54" r="12" fill="#fff" stroke="#F0A08A" strokeWidth="2.5" /><path d="M108 47v7l5 3" fill="none" stroke="#8B3A33" strokeWidth="2.4" strokeLinecap="round" />
+  </>],
+  top: ['#FBEFD3', '#EBCB86', <>
+    <path d="M64 16h32v14a16 16 0 0 1-32 0Z" fill="#D9A441" /><path d="M64 20H54a10 10 0 0 0 12 13M96 20h10a10 10 0 0 1-12 13" fill="none" stroke="#D9A441" strokeWidth="3.4" />
+    <path d="M76 45h8v7h-8zM68 52h24v6H68z" fill="#B7832A" /><path d="m80 19 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z" fill="#fff" />
+    <path d="m36 30 1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5ZM124 20l1.5 3 3.3.5-2.4 2.3.6 3.3-3-1.6-3 1.6.6-3.3-2.4-2.3 3.3-.5Z" fill="#fff" />
+  </>],
+  star: ['#FBE1E6', '#E7A5B3', <>
+    <path d="M60 60 88 22l8 6-28 38Z" fill="#7A4A52" /><path d="M88 22c4-8 12-12 18-8s3 13-4 18l-6 4Z" fill="#F2C7CF" stroke="#C7707A" strokeWidth="2" /><path d="M86 25l9 7" stroke="#D9A441" strokeWidth="4" />
+    <path d="m118 10 2.6 7.4 7.4 2.6-7.4 2.6L118 30l-2.6-7.4-7.4-2.6 7.4-2.6ZM50 22l1.6 4.4L56 28l-4.4 1.6L50 34l-1.6-4.4L44 28l4.4-1.6Z" fill="#fff" />
+    <circle cx="124" cy="44" r="3" fill="#fff" />
+  </>],
+  offer: ['#EDE3F3', '#C7AED8', <>
+    <path d="M60 22h30l20 20-24 24-26-26Z" fill="#fff" transform="rotate(-8 85 44)" /><circle cx="72" cy="33" r="4" fill="#9C8AA5" />
+    <text x="86" y="56" textAnchor="middle" fontSize="22" fontWeight="800" fill="#7E5F96" fontFamily="sans-serif">%</text>
+    <circle cx="40" cy="20" r="5" fill="#fff" opacity=".7" /><circle cx="126" cy="60" r="7" fill="#fff" opacity=".6" />
+  </>],
+  home: ['#E4EFE5', '#A9C9AE', <>
+    <path d="M56 38 80 16l24 22v24H56Z" fill="#fff" /><path d="M50 40 80 12l30 28" fill="none" stroke="#5E8C6A" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M80 58s-11-6.6-11-13.4a5.5 5.5 0 0 1 11-1 5.5 5.5 0 0 1 11 1C91 51.4 80 58 80 58Z" fill="#E0584F" />
+    <path d="M120 30c4 0 7 3 7 7M34 50c-4 0-7-3-7-7" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
+  </>],
+  save: ['#DDF0EE', '#94CCC4', <>
+    <ellipse cx="72" cy="56" rx="16" ry="5" fill="#C9962F" /><path d="M56 50v6c0 2.8 7 5 16 5s16-2.2 16-5v-6" fill="#D9A441" /><ellipse cx="72" cy="50" rx="16" ry="5" fill="#F0C565" />
+    <path d="M56 42v6c0 2.8 7 5 16 5s16-2.2 16-5v-6" fill="#D9A441" /><ellipse cx="72" cy="42" rx="16" ry="5" fill="#F0C565" />
+    <circle cx="100" cy="34" r="16" fill="#F0C565" stroke="#C9962F" strokeWidth="3" /><circle cx="100" cy="34" r="9.5" fill="none" stroke="#C9962F" strokeWidth="2" /><path d="m100 28.5 1.7 3.5 3.8.5-2.8 2.6.7 3.8-3.4-1.8-3.4 1.8.7-3.8-2.8-2.6 3.8-.5Z" fill="#9B6F1E" />
+  </>],
+}
+export function QuickArt({ k }) {
+  const [a, b, art] = QA[k]
+  return (
+    <svg className="qart" viewBox="0 0 160 80" preserveAspectRatio="xMidYMid slice" aria-hidden>
+      <defs><linearGradient id={`qa-${k}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={a} /><stop offset="1" stopColor={b} /></linearGradient></defs>
+      <rect width="160" height="80" fill={`url(#qa-${k})`} />
+      <circle cx="18" cy="70" r="26" fill="#fff" opacity=".22" /><circle cx="146" cy="6" r="20" fill="#fff" opacity=".22" />
+      {art}
+    </svg>
+  )
+}

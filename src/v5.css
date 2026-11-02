@@ -339,3 +339,15 @@
 .tagline-under { text-align: center; font-size: 13px; font-weight: 700; color: var(--ink); margin: -2px 22px 2px !important; }
 .maker { text-align: center; font-size: 11px; color: #A9A4A0; margin-top: auto !important; margin-bottom: -2px !important; }
 .login .demo-bar { margin-top: 6px !important; }
+
+/* کاشی‌های برداری انتخاب سریع */
+.qtiles .qart { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transition: transform .5s; }
+.qtiles button:hover .qart { transform: scale(1.06); }
+.qtiles:not(.three) b { background: linear-gradient(transparent 45%, rgba(42, 30, 36, .62)); }
+
+/* دکمه‌ی «روی نقشه» با نقشه‌ی برداری در پس‌زمینه */
+.finder.cs .f-mapbtn { position: relative; overflow: hidden; border: 0; padding: 0; }
+.f-mapbtn .map-art { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform .5s; }
+.f-mapbtn:hover .map-art { transform: scale(1.08); }
+.f-mapbtn .map-chip { position: relative; display: inline-flex; align-items: center; gap: 2px; padding: 4px 7px 4px 8px; white-space: nowrap; border-radius: 999px; background: rgba(255, 255, 255, .92); color: #2A1E24; box-shadow: 0 4px 12px -4px rgba(42, 30, 36, .35); }
+.f-mapbtn .map-chip svg { color: #E0584F; }
