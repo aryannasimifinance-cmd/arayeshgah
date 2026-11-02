@@ -5,7 +5,7 @@ import { addDays, pick, rng, today } from './util'
 import { KIND_PH, PH } from './photos'
 import { seedMarket, seedPayouts } from './market'
 
-export const SEED_V = 10
+export const SEED_V = 11
 
 // نوع هر کسب‌وکار و دسته‌هایی که ارائه می‌دهد
 export const KINDS = {

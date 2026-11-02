@@ -72,10 +72,10 @@ export default function Gate() {
 
 // اسلاید عکس‌های بالای صفحه‌ی ورود؛ هر ۴ ثانیه با محو شدن عوض می‌شود
 const SLIDES = [
-  ['1544161515-4ab6ce6db874', 'رزرو سالن‌های زیبایی و ماساژ'],
+  ['1636990490461-b98d2302b9fb', 'رزرو سالن‌های زیبایی و ماساژ'],
   ['1595986630530-969786b19b4d', 'بررسی و ثبت نظرات'],
-  ['1487412947147-5cebf100ffc2', 'آرتیست‌های مختلف'],
-  ['1680878898191-7c8a1e3b8180', 'سریع‌ترین زمان برای رزرو بهترین‌ها'],
+  ['1562322140-8baeececf3df', 'آرتیست‌های مختلف'],
+  ['1758523672347-d4a0e2bb33df', 'سریع‌ترین زمان برای رزرو بهترین‌ها'],
   ['1655026392641-bf283a5f12d4', 'خرید بهترین محصولات از بهترین‌ها'],
 ]
 function HeroSlides() {
@@ -112,6 +112,7 @@ function Login({ go }) {
   return (
     <motion.form className="gate-in login" {...slide} onSubmit={submit}>
       <HeroSlides />
+      <p className="tagline-under">پلتفرم تخصصی رزرو، خرید و مدیریت خدمات زیبایی</p>
       <h1>خوش آمدید</h1>
       <p className="muted">برای ورود، نام کاربری یا شماره موبایل و رمز عبورتون رو وارد کنید.</p>
       <Field label="نام کاربری یا موبایل">
@@ -127,6 +128,7 @@ function Login({ go }) {
       <button className="btn primary block lg" type="submit" disabled={!user || !pass}>ورود</button>
       <p className="switch">حساب ندارید؟ <button type="button" onClick={() => go('signup')}>ثبت‌نام کنید</button></p>
       <p className="switch small">صاحب سالن یا آرتیست هستید؟ <button type="button" onClick={() => go('partner')}>درخواست همکاری</button></p>
+      <p className="maker">محصول گروه ره آسا، ارائه دهنده راه حل های نوین کسب و کار</p>
       <div className="demo-bar">
         <small>ورود نمایشی (ارائه):</small>
         <button type="button" onClick={() => demo('customer')}>مشتری عادی</button>
@@ -134,7 +136,6 @@ function Login({ go }) {
         <button type="button" onClick={() => demo('manager')}>صاحب سالن</button>
         <button type="button" onClick={() => demo('admin')}>مدیر کل</button>
       </div>
-      <p className="tagline-foot">پلتفرم تخصصی رزرو، خرید و مدیریت خدمات زیبایی</p>
     </motion.form>
   )
 }
