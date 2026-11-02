@@ -5,6 +5,7 @@ import { Logo } from './components/Logo'
 import Gate from './screens/Gate'
 import Shell from './screens/Shell'
 import { ThemeToggle } from './lib/theme'
+import Intro from './components/Intro'
 
 // پنل‌ها جدا بارگذاری می‌شوند تا اپ مشتری سبک بماند
 const ArtistApp = lazy(() => import('./screens/pro/ArtistApp'))
@@ -39,6 +40,7 @@ export default function App() {
       <div className="phone">
         {role === 'customer' && me ? <Shell /> : role === 'artist' ? <Suspense fallback={loading}><ArtistApp id={session.id} /></Suspense> : <Gate />}
         <div id="portal" />
+        <Intro />
         <Toasts />
       </div>
     </div>

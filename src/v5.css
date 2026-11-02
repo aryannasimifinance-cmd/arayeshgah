@@ -341,9 +341,6 @@
 .login .demo-bar { margin-top: 6px !important; }
 
 /* کاشی‌های برداری انتخاب سریع */
-.qtiles .qart { position: absolute; inset: 0; width: 100%; height: 100%; display: block; transition: transform .5s; }
-.qtiles button:hover .qart { transform: scale(1.06); }
-.qtiles:not(.three) b { background: linear-gradient(transparent 45%, rgba(42, 30, 36, .62)); }
 
 /* دکمه‌ی «روی نقشه» با نقشه‌ی برداری در پس‌زمینه */
 .finder.cs .f-mapbtn { position: relative; overflow: hidden; border: 0; padding: 0; }
@@ -351,3 +348,20 @@
 .f-mapbtn:hover .map-art { transform: scale(1.08); }
 .f-mapbtn .map-chip { position: relative; display: inline-flex; align-items: center; gap: 2px; padding: 4px 7px 4px 8px; white-space: nowrap; border-radius: 999px; background: rgba(255, 255, 255, .92); color: #2A1E24; box-shadow: 0 4px 12px -4px rgba(42, 30, 36, .35); }
 .f-mapbtn .map-chip svg { color: #E0584F; }
+
+/* لوگو استینگ شروع */
+.intro { position: absolute; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--paper); color: var(--ink); cursor: pointer; overflow: hidden; }
+.intro-glow { position: absolute; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(224, 88, 79, .16), transparent 65%); }
+.intro-mark { position: relative; width: 96px; height: 96px; }
+.intro-spark { fill: #E0584F; }
+.intro b { position: relative; font-size: 34px; font-weight: 800; letter-spacing: -.5px; margin-top: 6px; }
+.intro em { position: relative; font-style: normal; font-family: var(--en); font-weight: 700; font-size: 11px; color: #E0584F; direction: ltr; padding-left: .5em; }
+.intro-bar { position: absolute; bottom: 64px; width: 72px; height: 3px; border-radius: 3px; background: #E0584F; transform-origin: right; opacity: .8; }
+
+/* هدر جستجو هنگام اسکرول بالا می‌ماند تا پروفایل در دسترس باشد */
+.scroll.home > .search-head { position: sticky; top: 0; }
+
+/* کاشی‌های برداری: تصویر بالا، نام زیرش (هر دو ظاهر) */
+.qtiles.vec button { height: auto; display: flex; flex-direction: column; padding: 6px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow-2); }
+.qtiles.vec .qart { display: block; width: 100%; height: 74px; border-radius: 16px; }
+.qtiles.vec b { position: static; background: none; color: var(--ink); padding: 8px 6px 4px; }

@@ -52,7 +52,7 @@ export default function Home() {
       <Finder onMap={() => setMode('map')} />
 
       <div className="sec-title"><div><em className="en">Quick filters</em><h2>انتخاب سریع</h2></div></div>
-      <div className="qtiles">
+      <div className="qtiles vec">
         {QUICK.map((t, i) => (
           <motion.button key={t.name} whileTap={{ scale: 0.96 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.03 } }} onClick={() => open(t)}>
             <QuickArt k={t.art} /><b>{t.name}</b>

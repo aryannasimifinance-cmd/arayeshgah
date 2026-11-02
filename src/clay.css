@@ -198,6 +198,4 @@
 [data-theme="clay"] .feed-cta { background: #F3E4DE; height: 160px; }
 [data-theme="clay"] .feed-cta img { left: 0; right: auto; width: 50%; object-position: center 20%; -webkit-mask-image: linear-gradient(to left, transparent 0, #000 35%); mask-image: linear-gradient(to left, transparent 0, #000 35%); }
 [data-theme="clay"] .feed-cta > div { background: none; padding-left: 50%; }
-[data-theme="clay"] .qtiles .qart { position: static; height: 74px; border-radius: 16px; }
-[data-theme="clay"] .qtiles:not(.three) b { background: none; }
 [data-theme="clay"] .finder.cs .finder-top h1 { font-size: 19px; }
