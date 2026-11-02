@@ -7,7 +7,7 @@ import { Mark } from '../components/Logo'
 import { CITIES, CITY_IDS } from '../lib/geo'
 import { ago, fa, toman } from '../lib/util'
 
-export default function Me() {
+export default function Me({ asPage }) {
   const { db, me, updateMe, readNotes, logout, reset, toast } = useStore()
   const nav = useNav()
   const favs = db.salons.filter((s) => me.favs.includes(s.id))
@@ -17,6 +17,7 @@ export default function Me() {
 
   return (
     <div className="scroll me">
+      {asPage && <button className="icon-btn me-back" onClick={nav.pop} aria-label="بازگشت"><Icon n="back" s={22} /></button>}
       <section className="me-head">
         <Avatar u={me} size={72} ring="var(--gold)" />
         <h1>{me.name}</h1>

@@ -7,6 +7,7 @@ import { startTab } from '../App'
 import Discover from './Discover'
 import MapTab from './MapTab'
 import Artists from './Artists'
+import Services, { CategoryPage } from './Services'
 import Visits from './Visits'
 import Me from './Me'
 import Salon from './Salon'
@@ -14,13 +15,13 @@ import Artist from './Artist'
 import Results from './Results'
 import Wizard from './Wizard'
 
-// ترتیب تب‌ها از راست؛ رزرو در وسط
+// ترتیب تب‌ها از راست؛ جستجو در وسط. «من» از عکس پروفایل بالای صفحه باز می‌شود
 const TABS = [
   { id: 'map', name: 'نقشه', icon: 'map' },
-  { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
+  { id: 'services', name: 'خدمات', icon: 'grid' },
   { id: 'home', name: 'جستجو', icon: 'search', center: true },
+  { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
   { id: 'visits', name: 'نوبت‌ها', icon: 'cal' },
-  { id: 'me', name: 'من', icon: 'user' },
 ]
 
 const Nav = createContext(null)
@@ -38,11 +39,11 @@ export default function Shell() {
   const pop = useCallback(() => setStack((s) => s.slice(0, -1)), [])
   // ویزارد رزرو: { salon, svc[], artist, date, start }
   const book = useCallback((o) => { haptic(); setWiz(o) }, [])
-  const go = useCallback((t) => { setStack([]); setTab(t) }, [])
+  const go = useCallback((t) => { setStack([]); if (t === 'me') setStack([{ type: 'me', k: Math.random() }]); else setTab(t) }, [])
 
   const upcoming = db.bookings.filter((b) => b.user === 'me' && b.status === 'confirmed').length
   const toReview = db.bookings.filter((b) => b.user === 'me' && b.status === 'done' && !b.reviewed).length
-  const badge = { visits: upcoming + toReview, me: me.notes.filter((n) => !n.read).length }
+  const badge = { visits: upcoming + toReview }
   const top = stack[stack.length - 1]
 
   return (
@@ -50,10 +51,10 @@ export default function Shell() {
       <div className="shell">
         <div className="tab-pages">
           {tab === 'home' && <Discover />}
+          {tab === 'services' && <Services />}
           {tab === 'artists' && <Artists />}
           {tab === 'map' && <MapTab />}
           {tab === 'visits' && <Visits />}
-          {tab === 'me' && <Me />}
         </div>
         <AnimatePresence>
           {stack.map((p, i) => (
@@ -61,19 +62,27 @@ export default function Shell() {
               {p.type === 'salon' && <Salon id={p.id} />}
               {p.type === 'artist' && <Artist id={p.id} />}
               {p.type === 'results' && <Results init={p.q} title={p.title} />}
+              {p.type === 'me' && <Me asPage />}
+              {p.type === 'cat' && <CategoryPage id={p.id} />}
             </motion.div>
           ))}
         </AnimatePresence>
+        {/* تب فعال یک قرص رنگی دارد که بین تب‌ها می‌لغزد تا معلوم باشد کجا هستیم */}
         <nav className="tabbar">
-          {TABS.map((t) => (
-            <button key={t.id} className={`${tab === t.id && !top ? 'on' : ''} ${t.center ? 'center' : ''}`} onClick={() => { haptic(); go(t.id) }}>
-              <span className="tab-ico">
-                <Icon n={t.icon} s={t.center ? 24 : 22} w={tab === t.id || t.center ? 2 : 1.6} />
-                {badge[t.id] > 0 && <i className="dot">{badge[t.id].toLocaleString('fa-IR')}</i>}
-              </span>
-              <span>{t.name}</span>
-            </button>
-          ))}
+          {TABS.map((t) => {
+            const on = tab === t.id
+            return (
+              <button key={t.id} className={`${on ? 'on' : ''} ${t.center ? 'center' : ''}`} onClick={() => { haptic(); go(t.id) }} aria-current={on ? 'page' : undefined}>
+                {on && !t.center && <motion.span layoutId="tab-pill" className="tab-pill" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
+                <span className="tab-ico">
+                  <Icon n={t.icon} s={t.center ? 25 : 21} w={on || t.center ? 2.1 : 1.6} />
+                  {badge[t.id] > 0 && <i className="dot">{badge[t.id].toLocaleString('fa-IR')}</i>}
+                </span>
+                <span className="tab-name">{t.name}</span>
+                {on && t.center && <motion.i layoutId="tab-dot" className="center-dot" />}
+              </button>
+            )
+          })}
         </nav>
         <Wizard opts={wiz} onClose={() => setWiz(null)} />
       </div>

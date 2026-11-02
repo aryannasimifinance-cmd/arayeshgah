@@ -306,3 +306,49 @@ select, .form-grid input { height: 40px; border: 0; border-radius: 12px; padding
   .kpi b { font-size: 19px; }
   .tbl { display: block; overflow-x: auto; }
 }
+
+/* =================== نسخه‌ی ۴: نشانگر تب، برترین‌ها، تب خدمات =================== */
+.tabbar button { position: relative; }
+.tab-pill { position: absolute; inset: 9px 4px; border-radius: 16px; background: var(--rose-soft); z-index: 0; }
+.tabbar button > .tab-ico, .tabbar button > .tab-name { position: relative; z-index: 1; }
+.tabbar button.on:not(.center) { color: var(--rose-2); }
+.tabbar button.on .tab-name { font-weight: 700; }
+.tabbar .center .tab-ico { box-shadow: 0 10px 22px -8px rgba(42, 30, 36, .6), 0 0 0 4px #fff; }
+.tabbar .center:not(.on) .tab-ico { background: var(--ink-2); }
+.center-dot { position: absolute; bottom: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--rose-2); }
+.me-btn { position: relative; }
+.me-btn .ping { position: absolute; top: 0; left: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--rose-2); border: 2px solid var(--paper); }
+.me-back { position: absolute; top: 12px; right: 10px; z-index: 3; background: rgba(255, 255, 255, .8); }
+.me { position: relative; }
+.top-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 0 16px 12px; }
+.top-chips::-webkit-scrollbar { display: none; }
+.top-chips button { position: relative; flex-shrink: 0; height: 38px; padding: 0 14px; border-radius: 999px; display: flex; align-items: center; gap: 6px; font-size: 12.5px; background: var(--card); box-shadow: 0 0 0 1px var(--line-2) inset; color: var(--ink-2); }
+.top-chips button > svg, .top-chips button > span:not(.tc-on) { position: relative; z-index: 1; }
+.top-chips button.on { color: #fff; font-weight: 600; box-shadow: none; }
+.tc-on { position: absolute; inset: 0; border-radius: 999px; background: var(--ink); }
+.top-artist { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; margin-bottom: 8px; border-radius: 20px; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; text-align: right; }
+.top-artist > div { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.5; }
+.top-artist small { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank { width: 22px; font-family: var(--en); font-size: 20px; color: var(--gold); text-align: center; }
+.svc-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 16px 0; }
+.svc-tiles button { position: relative; aspect-ratio: 1 / 1.15; border-radius: 22px; overflow: hidden; box-shadow: 0 12px 24px -16px rgba(42, 30, 36, .6); }
+.svc-tiles button.wide { grid-column: span 2; aspect-ratio: 2 / 1.05; }
+.svc-tiles img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+.svc-tiles button:hover img { transform: scale(1.06); }
+.st-in { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 14px; color: #fff; text-align: right; line-height: 1.3; background: linear-gradient(transparent 35%, rgba(42, 30, 36, .78)); }
+.st-in .en { color: var(--gold-2); font-size: 14px; }
+.st-in b { font-size: 17px; }
+.st-in small { font-size: 11px; opacity: .85; margin-top: 3px; }
+.svc-pick { width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px; padding-left: 12px; margin-bottom: 8px; border-radius: 18px; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; text-align: right; }
+.svc-pick img { width: 56px; height: 56px; border-radius: 14px; object-fit: cover; }
+.svc-pick > div { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.5; }
+.svc-pick > div small { font-size: 11px; }
+.svc-pick > span { font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+.svc-pick > svg { color: var(--muted); }
+.cat-hero { position: relative; height: 250px; overflow: hidden; }
+.cat-hero img { width: 100%; height: 100%; object-fit: cover; }
+.cat-hero .icon-btn { position: absolute; top: 12px; right: 12px; }
+.cat-hero > div { position: absolute; inset: auto 0 0 0; padding: 40px 18px 16px; color: #fff; background: linear-gradient(transparent, rgba(42, 30, 36, .75)); }
+.cat-hero .en { color: var(--gold-2); font-size: 17px; }
+.cat-hero h1 { font-size: 26px; }
+.cat-sub { font-size: 13.5px; margin: 18px 0 10px; color: var(--ink-2); }
