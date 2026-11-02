@@ -193,3 +193,8 @@
 [data-theme="clay"] .btn.primary.buy { background: var(--coral); box-shadow: 0 10px 22px -10px rgba(238, 90, 67, .8); }
 [data-theme="clay"] .kind-pick button.on { box-shadow: 0 0 0 2px var(--coral); }
 [data-theme="clay"] .kind-pick button.on b { color: var(--coral); }
+
+/* بنر خانه: عکس سمت چپ، نوشته روی زمینه‌ی کرم سمت راست */
+[data-theme="clay"] .feed-cta { background: #F3E4DE; height: 160px; }
+[data-theme="clay"] .feed-cta img { left: 0; right: auto; width: 50%; object-position: center 20%; -webkit-mask-image: linear-gradient(to left, transparent 0, #000 35%); mask-image: linear-gradient(to left, transparent 0, #000 35%); }
+[data-theme="clay"] .feed-cta > div { background: none; padding-left: 50%; }

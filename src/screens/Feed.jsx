@@ -36,7 +36,7 @@ export default function Feed() {
       </header>
 
       <motion.button className="feed-cta" whileTap={{ scale: 0.98 }} onClick={() => nav.go('search')}>
-        <img src={img('1522337360788-8b13dee7a37e')} alt="" />
+        <img src={img('1500917293891-ef795e70e1f6')} alt="" />
         <div><Logo size={15} light en={false} /><b>نوبت زیبایی‌تون رو پیدا کنید</b><span className="fc-go"><Icon n="search" s={15} /> جستجو و نقشه</span></div>
       </motion.button>
 
