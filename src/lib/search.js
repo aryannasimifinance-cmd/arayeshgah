@@ -42,7 +42,7 @@ export function useSearch(q) {
       pros.forEach((a) => freeStarts(s, a, q.date, dur, db.bookings, dp.from, dp.to).forEach((h) => set.add(h)))
       const slots = [...set].sort((a, b) => a - b)
       const price = q.sid ? s.svc.find((x) => x.sid === q.sid)?.price : fromPrice(s, q.cat)
-      return { ...s, slots, price, sid }
+      return { ...s, slots, price, sid, picked: !!q.sid }
     })
     if (q.freeOnly) list = list.filter((s) => s.slots.length)
     const score = (s) => s.rating * 2 + Math.log10(s.reviewsN) + (s.verified ? 0.4 : 0) + (s.slots.length ? 0.6 : 0) + (me.area === s.area ? 0.8 : 0)

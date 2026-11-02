@@ -2,10 +2,11 @@ import { motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from '../screens/Shell'
 import { Badge, Icon, Rating } from './ui'
-import { Cover, Portrait } from './Art'
+import { Portrait } from './Art'
+import { img } from '../lib/photos'
 import { areaOf } from '../lib/geo'
 import { CAT } from '../lib/catalog'
-import { KINDS, tierLabel } from '../lib/seed'
+import { KINDS } from '../lib/seed'
 import { fa, haptic, hh, short } from '../lib/util'
 
 export function Heart({ id, light }) {
@@ -21,30 +22,31 @@ export function Heart({ id, light }) {
   )
 }
 
-// کارت سالن در نتایج: کاور، امتیاز، ناحیه، قیمت شروع و ساعت‌های آزاد
+// کارت سالن: ردیفی جمع‌وجور (عکس کنار، اطلاعات، چند ساعت آزاد) — compact برای ریل‌ها
 export function SalonCard({ s, onSlot, compact }) {
   const nav = useNav()
   const area = areaOf(s.city, s.area)
+  const open = () => nav.push({ type: 'salon', id: s.id })
+  if (compact) return (
+    <motion.article className="sc-mini" whileTap={{ scale: 0.98 }} onClick={open}>
+      <div className="scm-ph"><img src={img(s.photos[0])} alt="" loading="lazy" /><Heart id={s.id} light />{s.offer && <span className="sc-offer">٪{fa(s.offer.pct)}</span>}</div>
+      <b>{s.name}</b>
+      <small className="muted">{s.hood} · <Icon n="star" s={10} fill="currentColor" w={0} className="gold" /> {fa(s.rating.toFixed(1))}</small>
+    </motion.article>
+  )
   return (
-    <motion.article className={`salon-card ${compact ? 'compact' : ''}`} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} onClick={() => nav.push({ type: 'salon', id: s.id })}>
-      <div className="sc-cover">
-        <Cover salon={s} ratio={compact ? 0.6 : 0.5} />
-        <Heart id={s.id} light />
-        {s.offer && <span className="sc-offer">٪{fa(s.offer.pct)} تخفیف {CAT[s.offer.cat].name}</span>}
-        <span className="sc-kind">{KINDS[s.kind].name}</span>
-      </div>
-      <div className="sc-body">
-        <div className="sc-row">
-          <h3>{s.name}{s.verified && <Icon n="verified" s={15} className="vf" />}</h3>
-          <Rating v={s.rating} n={compact ? undefined : s.reviewsN} />
-        </div>
-        <p className="muted sc-meta"><Icon n="pin" s={13} /> {s.hood} · {area?.name} <span className="dot-sep" /> <span className="tier">{tierLabel(s.tier)}</span></p>
-        {!compact && s.price != null && <p className="sc-price">از <b>{short(s.price)}</b> تومان</p>}
-        {!compact && s.slots && (
-          <div className="sc-slots" onClick={(e) => e.stopPropagation()}>
-            {s.slots.length ? s.slots.slice(0, 5).map((h) => (
-              <button key={h} onClick={() => { haptic(); onSlot ? onSlot(s, h) : nav.book({ salon: s.id, svc: s.sid ? [s.sid] : [], start: h }) }}>{hh(h)}</button>
-            )) : <span className="muted small">این روز نوبت آزاد ندارد</span>}
+    <motion.article className="sc-row" layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} onClick={open}>
+      <div className="scr-ph"><img src={img(s.photos[0])} alt="" loading="lazy" />{s.offer && <span className="sc-offer">٪{fa(s.offer.pct)}</span>}</div>
+      <div className="scr-body">
+        <div className="scr-top"><h3>{s.name}{s.verified && <Icon n="verified" s={14} className="vf" />}</h3><Heart id={s.id} /></div>
+        <small className="muted">{KINDS[s.kind].name} · {s.hood}، {area?.name}</small>
+        <span className="scr-meta"><Rating v={s.rating} n={s.reviewsN} />{s.price != null && <em>از {short(s.price)}</em>}</span>
+        {s.slots && (
+          <div className="scr-slots" onClick={(e) => e.stopPropagation()}>
+            {s.slots.length ? <>
+              {s.slots.slice(0, 3).map((h) => <button key={h} onClick={() => { haptic(); onSlot ? onSlot(s, h) : nav.book({ salon: s.id, svc: s.sid && s.picked ? [s.sid] : [], start: h }) }}>{hh(h)}</button>)}
+              {s.slots.length > 3 && <span className="more">+{fa(s.slots.length - 3)}</span>}
+            </> : <span className="muted small">این روز پر است</span>}
           </div>
         )}
       </div>

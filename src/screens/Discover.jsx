@@ -3,13 +3,12 @@ import { useStore } from '../store'
 import { useNav } from './Shell'
 import { Logo } from '../components/Logo'
 import { Avatar, Icon } from '../components/ui'
-import { Work } from '../components/Art'
 import { ArtistCard, SalonCard } from '../components/cards'
 import { CATS, CAT, SV } from '../lib/catalog'
 import { PH, img } from '../lib/photos'
 import { BLANK, useSearch } from '../lib/search'
 import { fa, haptic, hh, relDay } from '../lib/util'
-import { Finder, Shortcuts } from './Book'
+import { Finder } from './Book'
 
 const greet = () => { const h = new Date().getHours(); return h < 12 ? 'صبح بخیر' : h < 17 ? 'روز بخیر' : 'عصر بخیر' }
 
@@ -23,10 +22,8 @@ export default function Home() {
   const now = useSearch({ ...BLANK, freeOnly: true, sort: 'soon' }).list
     .sort((a, b) => (b.area === me.area) - (a.area === me.area) || a.slots[0] - b.slots[0]).slice(0, 8)
   const stars = db.artists.filter((a) => a.city === city && a.badge === 'star').sort((a, b) => b.followers - a.followers).slice(0, 10)
-  const offers = salons.filter((s) => s.offer).slice(0, 6)
   const top = [...salons].sort((a, b) => b.rating * Math.log(b.reviewsN) - a.rating * Math.log(a.reviewsN)).slice(0, 6)
   const next = db.bookings.filter((b) => b.user === 'me' && b.status === 'confirmed').sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))[0]
-  const feed = stars.flatMap((a) => a.works.slice(0, 1).map((w) => ({ w, a }))).slice(0, 7)
   const results = (q, title) => nav.push({ type: 'results', q: { ...BLANK, ...q }, title })
 
   return (
@@ -65,9 +62,6 @@ export default function Home() {
         </div>
       </>}
 
-      <div className="sec-title"><div><em className="en">Quick picks</em><h2>انتخاب سریع</h2></div></div>
-      <Shortcuts />
-
       <div className="sec-title"><div><em className="en">Services</em><h2>همه‌ی خدمات</h2></div></div>
       <div className="cat-tiles">
         {CATS.map((c, i) => (
@@ -81,35 +75,9 @@ export default function Home() {
       <div className="sec-title"><div><em className="en">The Artists</em><h2>ستاره‌های بیوتی‌ست</h2></div><button onClick={() => nav.go('artists')}>همه</button></div>
       <div className="rail artists">{stars.map((a) => <ArtistCard key={a.id} a={a} size="lg" />)}</div>
 
-      <div className="sec-title"><div><em className="en">Lookbook</em><h2>تازه از دست آرتیست‌ها</h2></div></div>
-      <div className="lookbook">
-        {feed.map(({ w, a }, i) => (
-          <motion.button key={i} className={`lb ${i === 0 ? 'big' : ''}`} whileTap={{ scale: 0.97 }} onClick={() => nav.push({ type: 'artist', id: a.id })}>
-            <Work w={w} />
-            <span className="lb-cap"><b>{w.title}</b><small dir="ltr">@{a.handle}</small></span>
-          </motion.button>
-        ))}
-      </div>
-
-      {offers.length > 0 && <>
-        <div className="sec-title"><div><em className="en">This Week</em><h2>پیشنهادهای ویژه</h2></div></div>
-        <div className="rail offers">
-          {offers.map((s) => (
-            <motion.button key={s.id} className="offer-card" whileTap={{ scale: 0.97 }} onClick={() => nav.push({ type: 'salon', id: s.id })}>
-              <img src={img(s.photos[1] || s.photos[0])} alt="" loading="lazy" />
-              <div className="oc-in"><span className="oc-pct">٪{fa(s.offer.pct)}</span><b>{CAT[s.offer.cat].name}</b><small>{s.name}</small></div>
-            </motion.button>
-          ))}
-        </div>
-      </>}
-
       <div className="sec-title"><div><em className="en">Most Loved</em><h2>محبوب‌ترین سالن‌ها</h2></div><button onClick={() => results({ sort: 'rating' }, 'محبوب‌ترین‌ها')}>همه</button></div>
-      <div className="rail">{top.map((s) => <div key={s.id} className="rail-item"><SalonCard s={s} compact /></div>)}</div>
+      <div className="pad-x">{top.slice(0, 4).map((s) => <SalonCard key={s.id} s={s} />)}</div>
 
-      <section className="manifest">
-        <em className="en">Made for women, by women.</em>
-        <p>همه‌ی سالن‌ها و آرتیست‌های بیوتی‌ست مخصوص بانوان‌اند و نظرها فقط از کسانی است که واقعاً نوبت گرفته‌اند.</p>
-      </section>
       <div className="foot-space" />
     </div>
   )

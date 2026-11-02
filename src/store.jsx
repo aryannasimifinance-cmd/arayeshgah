@@ -15,9 +15,9 @@ const freshMe = (p = {}) => ({
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY))
-    if (s?.db?.v === SEED_V) return s
+    if (s?.db?.v === SEED_V) return { ...s, session: s.session || (s.me ? { role: 'customer' } : null) }
   } catch { /* داده‌ی خراب: از نو */ }
-  return { db: seedDB(), me: null }
+  return { db: seedDB(), me: null, session: null }
 }
 
 export function StoreProvider({ children }) {
@@ -34,9 +34,19 @@ export function StoreProvider({ children }) {
   const setMe = (f) => setState((s) => ({ ...s, me: { ...s.me, ...f(s.me) } }))
 
   const api = useMemo(() => ({
-    login: (p) => setState((s) => ({ ...s, me: freshMe(p) })),
-    logout: () => setState((s) => ({ ...s, me: null })),
-    reset: () => { localStorage.removeItem(KEY); setState({ db: seedDB(), me: null }) },
+    // سه نقش: customer (مشتری) · artist (آرتیست، id) · manager (مدیر سالن، id)
+    login: (p) => setState((s) => ({ ...s, me: freshMe(p), session: { role: 'customer' } })),
+    loginPro: (role, id) => setState((s) => ({ ...s, session: { role, id } })),
+    logout: () => setState((s) => ({ ...s, me: s.session?.role === 'customer' ? null : s.me, session: null })),
+    reset: () => { localStorage.removeItem(KEY); setState({ db: seedDB(), me: null, session: null }) },
+    // ---- آرتیست ----
+    toggleOff: (aid, date) => setDB((db) => ({ artists: db.artists.map((a) => (a.id === aid ? { ...a, off: (a.off || []).includes(date) ? a.off.filter((d) => d !== date) : [...(a.off || []), date] } : a)) })),
+    mark: (id, status) => setDB((db) => ({ marks: { ...(db.marks || {}), [id]: status } })),
+    updateArtist: (aid, p) => setDB((db) => ({ artists: db.artists.map((a) => (a.id === aid ? { ...a, ...p } : a)) })),
+    // ---- مدیر سالن ----
+    addWalkin: (b) => setDB((db) => ({ bookings: [...db.bookings, { ...b, id: uid('w'), status: 'confirmed', user: 'walkin', t: Date.now() }] })),
+    reply: (rid, text) => setDB((db) => ({ reviews: db.reviews.map((r) => (r.id === rid ? { ...r, reply: text } : r)) })),
+    updateSalon: (sid, f) => setDB((db) => ({ salons: db.salons.map((s) => (s.id === sid ? { ...s, ...f(s) } : s)) })),
     updateMe: (p) => setMe(() => p),
     toggleFav: (id) => setMe((m) => ({ favs: m.favs.includes(id) ? m.favs.filter((x) => x !== id) : [...m.favs, id] })),
     toggleFollow: (id) => {

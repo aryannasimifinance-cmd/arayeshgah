@@ -16,9 +16,9 @@ import Wizard from './Wizard'
 
 // ترتیب تب‌ها از راست؛ رزرو در وسط
 const TABS = [
-  { id: 'home', name: 'خانه', icon: 'home' },
+  { id: 'map', name: 'نقشه', icon: 'map' },
   { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
-  { id: 'map', name: 'نقشه', icon: 'map', center: true },
+  { id: 'home', name: 'جستجو', icon: 'search', center: true },
   { id: 'visits', name: 'نوبت‌ها', icon: 'cal' },
   { id: 'me', name: 'من', icon: 'user' },
 ]

@@ -74,9 +74,11 @@ export function Finder() {
       </AnimatePresence>
       <div className="finder-shade" />
       <div className="finder-in">
-        <div className="finder-head">
-          <div className="ring" style={{ '--p': done / 3 }}><span>{done === 3 ? <Icon n="check" s={15} w={2.6} /> : `${fa(done)}/۳`}</span></div>
-          <div><em className="en">Book your glow.</em><h1>نوبت زیبایی‌تون، همین امروز</h1></div>
+        {/* ذره‌بین: نماد صفحه‌ی جستجو؛ با هر قدم یک درخشش داخلش روشن می‌شود */}
+        <div className="finder-head center">
+          <Magnifier step={done} />
+          <em className="en">Book your glow.</em>
+          <h1>دنبال چی می‌گردید؟</h1>
         </div>
         <div className="finder-dots">{photos.map((_, k) => <i key={k} className={k === slide % photos.length ? 'on' : ''} />)}</div>
 
@@ -136,6 +138,22 @@ export function Finder() {
       </div>
       <AreaSheet open={areaOpen} onClose={() => setAreaOpen(false)} areas={q.areas} setAreas={(areas) => set({ areas })} />
     </section>
+  )
+}
+
+function Magnifier({ step }) {
+  return (
+    <motion.svg className="magnifier" width="74" height="74" viewBox="0 0 80 80" initial={{ scale: 0.8, rotate: -8, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 14 }} aria-hidden>
+      <circle cx="34" cy="34" r="24" fill="rgba(255,255,255,.14)" stroke="#fff" strokeWidth="3" />
+      <circle cx="34" cy="34" r="17" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1" />
+      <path d="M52 52 70 70" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
+      <path d="M52 52 70 70" stroke="var(--gold-2)" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M22 26a14 14 0 0 1 9-8" stroke="rgba(255,255,255,.8)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      {[[34, 34, 9], [27, 41, 4.5], [42, 27, 4]].map(([x, y, r], i) => (
+        <motion.path key={i} d={`M${x} ${y - r}c${r * 0.12} ${r * 0.75} ${r * 0.25} ${r * 0.88} ${r} ${r}-${r * 0.75} ${r * 0.12}-${r * 0.88} ${r * 0.25}-${r} ${r}-${r * 0.12}-${r * 0.75}-${r * 0.25}-${r * 0.88}-${r}-${r} ${r * 0.75}-${r * 0.12} ${r * 0.88}-${r * 0.25} ${r}-${r}Z`}
+          fill={i < step ? 'var(--gold-2)' : 'rgba(255,255,255,.35)'} animate={i < step ? { scale: [1, 1.3, 1] } : {}} transition={{ duration: 0.4 }} style={{ transformOrigin: `${x}px ${y}px` }} />
+      ))}
+    </motion.svg>
   )
 }
 

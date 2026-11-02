@@ -27,14 +27,14 @@ const WORDS = [
   ['ماهور', 'Mahour'], ['تینا', 'Tina'], ['آذین', 'Azin'], ['نسیم', 'Nasim'], ['هستی', 'Hasti'], ['شمیم', 'Shamim'], ['الماس', 'Almas'],
   ['ارکیده', 'Orkideh'], ['آلاله', 'Alaleh'], ['پونه', 'Pouneh'], ['نیلا', 'Nila'], ['ستاره', 'Setareh'], ['آینا', 'Aina'], ['یاقوت', 'Yaghout'],
 ]
-const FIRST = [
+export const FIRST = [
   ['سارا', 'sara'], ['نگار', 'negar'], ['مهسا', 'mahsa'], ['الناز', 'elnaz'], ['نیلوفر', 'niloufar'], ['ترانه', 'taraneh'], ['آیدا', 'aida'], ['شیما', 'shima'],
   ['پریا', 'parya'], ['رها', 'raha'], ['یاسمن', 'yasaman'], ['هستی', 'hasti'], ['مریم', 'maryam'], ['سمیرا', 'samira'], ['لیلا', 'leila'], ['کیانا', 'kiana'],
   ['آناهیتا', 'anahita'], ['ستاره', 'setareh'], ['مهتاب', 'mahtab'], ['غزل', 'ghazal'], ['پرستو', 'parastoo'], ['نازنین', 'nazanin'], ['فرناز', 'farnaz'],
   ['بهاره', 'bahareh'], ['ساغر', 'saghar'], ['ملیکا', 'melika'], ['تینا', 'tina'], ['آیلین', 'aylin'], ['دنیا', 'donya'], ['شقایق', 'shaghayegh'],
   ['رویا', 'roya'], ['فاطمه', 'fatemeh'], ['زهرا', 'zahra'], ['سحر', 'sahar'], ['مینا', 'mina'], ['هانیه', 'hanieh'], ['عسل', 'asal'], ['درسا', 'dorsa'],
 ]
-const LAST = ['رضایی', 'کریمی', 'احمدی', 'موسوی', 'صادقی', 'نوری', 'توکلی', 'شریفی', 'حسینی', 'جعفری', 'فرهادی', 'مرادی', 'رحیمی', 'کاظمی', 'نیک‌نام', 'امینی', 'سلطانی', 'زمانی', 'افشار', 'پارسا', 'مهرپور', 'ستوده', 'بهرامی', 'یزدانی']
+export const LAST = ['رضایی', 'کریمی', 'احمدی', 'موسوی', 'صادقی', 'نوری', 'توکلی', 'شریفی', 'حسینی', 'جعفری', 'فرهادی', 'مرادی', 'رحیمی', 'کاظمی', 'نیک‌نام', 'امینی', 'سلطانی', 'زمانی', 'افشار', 'پارسا', 'مهرپور', 'ستوده', 'بهرامی', 'یزدانی']
 const HANDLE = { hair: 'hair', color: 'color', nail: 'nails', brow: 'lash', skin: 'skin', makeup: 'makeup', bridal: 'bridal', wax: 'smooth', spa: 'touch', pmu: 'brows' }
 
 export const WORKS = {
@@ -203,14 +203,22 @@ export const offers = (salon, sid) => salon.svc.some((x) => x.sid === sid)
 export const tierLabel = (t) => '$'.repeat(t)
 
 // ساعت‌های پر هر آرتیست؛ بذر از روی شناسه و روز ساخته می‌شود
-function hash(str) { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0 }
-export function busyMap(artist, date, bookings = []) {
+export function hash(str) { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0 }
+// ساعت‌های پر «پایه» (نوبت‌های تلفنی و حضوری که از قبل در دفتر سالن است)
+export function baseBusy(artist, date) {
   const r = rng(hash(artist.id + date))
   const busy = new Set()
+  const all = () => { for (let h = 8; h < 23; h += 0.5) busy.add(h) }
+  if (artist.off?.includes(date)) { all(); return busy } // مرخصی که خود آرتیست زده
   // آرتیست‌های ستاره پرترند
   const fill = artist.badge === 'star' ? 0.55 : 0.32
   for (let h = 8; h < 23; h += 0.5) if (r() < fill) busy.add(h)
-  if (r() < 0.12) for (let h = 8; h < 23; h += 0.5) busy.add(h) // روز تعطیل
+  if (r() < 0.12) all() // روز تعطیل
+  return busy
+}
+export const isOffDay = (artist, date) => artist.off?.includes(date) || baseBusy(artist, date).size >= 30
+export function busyMap(artist, date, bookings = []) {
+  const busy = baseBusy(artist, date)
   bookings.filter((b) => b.artist === artist.id && b.date === date && b.status !== 'cancelled').forEach((b) => {
     for (let h = b.start; h < b.start + b.dur / 60; h += 0.5) busy.add(h)
   })
