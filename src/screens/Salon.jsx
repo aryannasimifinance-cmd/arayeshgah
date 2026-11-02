@@ -12,7 +12,7 @@ import { areaOf } from '../lib/geo'
 import { KINDS, tierLabel } from '../lib/seed'
 import { isOpen } from '../lib/search'
 import { addDays, ago, dayNum, fa, haptic, hh, relDay, short, today, toman, wdShort } from '../lib/util'
-import { busyMap, canDo, freeStarts } from '../lib/seed'
+import { busyMap, canDo, freeStarts, priceOf } from '../lib/seed'
 
 // تقویم نیم‌ساعته‌ی سالن: هر خانه نیم ساعت؛ شروع آزاد = آرتیستی هست که به اندازه‌ی کل خدمات وقت خالی پشت‌سرهم دارد
 export function SlotCalendar({ s, team, svc, dur, pick, setPick }) {
@@ -124,7 +124,9 @@ export default function Salon({ id }) {
   const team = s.artists.map((a) => db.artists.find((x) => x.id === a))
   const reviews = useMemo(() => db.reviews.filter((r) => r.salon === id).sort((a, b) => b.t - a.t), [db.reviews, id])
   const cats = s.cats.filter((c) => s.svc.some((x) => SV[x.sid].cat === c))
-  const total = cart.reduce((a, sid) => a + s.svc.find((x) => x.sid === sid).price, 0)
+  // اگر آرتیست مشخص انتخاب شده، قیمت همان آرتیست
+  const chosen = pick.artist !== 'any' ? team.find((x) => x.id === pick.artist) : null
+  const total = cart.reduce((a, sid) => a + priceOf(s, sid, chosen), 0)
   const dur = cart.reduce((a, sid) => a + SV[sid].dur, 0)
   const toggle = (sid) => { haptic(10); setCart((c) => (c.includes(sid) ? c.filter((x) => x !== sid) : [...c, sid])) }
   const open = isOpen(s)
@@ -164,12 +166,31 @@ export default function Salon({ id }) {
           <div className="svc-list">
             {s.svc.filter((x) => SV[x.sid].cat === cat).map((x) => {
               const sv = SV[x.sid], on = cart.includes(x.sid)
+              const doers = team.filter((a) => a.cats.includes(sv.cat))
               return (
-                <motion.button key={x.sid} className={`svc ${on ? 'on' : ''}`} layout onClick={() => toggle(x.sid)}>
-                  <div><b>{sv.name}</b><small className="muted"><Icon n="clock" s={12} /> حداقل {fmtDur(sv.dur)}{sv.upto > sv.dur ? ` · تا ${fmtDur(sv.upto)}` : ''}{sv.note ? ` · ${sv.note}` : ''}</small></div>
-                  <span className="svc-price">{short(x.price)}</span>
-                  <span className="svc-add">{on ? <Icon n="check" s={16} w={2.4} /> : <Icon n="plus" s={16} w={2} />}</span>
-                </motion.button>
+                <motion.div key={x.sid} className={`svc-box ${on ? 'on' : ''}`} layout>
+                  <button className="svc" onClick={() => toggle(x.sid)}>
+                    <div><b>{sv.name}</b><small className="muted"><Icon n="clock" s={12} /> حداقل {fmtDur(sv.dur)}{sv.upto > sv.dur ? ` · تا ${fmtDur(sv.upto)}` : ''}{sv.note ? ` · ${sv.note}` : ''}</small></div>
+                    <span className="svc-price">{doers.length > 1 ? 'از ' : ''}{short(Math.min(...doers.map((a) => priceOf(s, x.sid, a)), x.price))}</span>
+                    <span className="svc-add">{on ? <Icon n="check" s={16} w={2.4} /> : <Icon n="plus" s={16} w={2} />}</span>
+                  </button>
+                  {/* چه کسانی این کار را انجام می‌دهند؛ انتخاب = تقویم همان آرتیست */}
+                  <div className="svc-doers">
+                    <small className="muted">{doers.length > 1 ? `${fa(doers.length)} آرتیست این کار را انجام می‌دهند` : 'انجام توسط'}</small>
+                    <div className="doers">
+                      {doers.map((a) => {
+                        const nx = freeStarts(s, a, today(), sv.dur, db.bookings)[0]
+                        const sel = on && pick.artist === a.id
+                        return (
+                          <button key={a.id} className={`doer ${sel ? 'on' : ''}`} onClick={() => { haptic(8); if (!on) toggle(x.sid); setPick((p) => ({ ...p, artist: a.id, start: null })) }}>
+                            <Portrait a={a} size={30} ring={false} />
+                            <span><b>{a.name.split(' ')[0]}</b><small>{short(priceOf(s, x.sid, a))} · {nx != null ? `امروز ${hh(nx)}` : 'امروز پر'}</small></span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
               )
             })}
           </div>

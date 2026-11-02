@@ -5,7 +5,7 @@ import { addDays, pick, rng, today } from './util'
 import { KIND_PH, PH } from './photos'
 import { seedMarket, seedPayouts } from './market'
 
-export const SEED_V = 9
+export const SEED_V = 10
 
 // نوع هر کسب‌وکار و دسته‌هایی که ارائه می‌دهد
 export const KINDS = {
@@ -167,6 +167,13 @@ export function seedDB() {
       const art = makeArtist([main, main === 'bridal' ? 'makeup' : 'hair'], null, city, ar.id)
       art.home = true
     }
+  })
+  // چند صندلی: در هر سالن، دسته‌ی اصلی را دست‌کم دو (تا سه) آرتیست انجام می‌دهند
+  salons.forEach((s) => {
+    const team = s.artists.map((id) => artists.find((a) => a.id === id))
+    const main = s.cats[0]
+    const doers = team.filter((a) => a.cats.includes(main))
+    team.filter((a) => !a.cats.includes(main)).slice(0, Math.max(0, Math.min(3, team.length) - doers.length)).forEach((a) => { a.cats = [main, ...a.cats].slice(0, 3) })
   })
   // آرتیست‌های ویژه همیشه نشان ستاره دارند
   artists.filter((x) => x.badge === 'star').forEach((x) => { x.followers = Math.max(x.followers, 12000) })

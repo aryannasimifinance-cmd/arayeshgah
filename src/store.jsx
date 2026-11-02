@@ -121,6 +121,7 @@ export function StoreProvider({ children }) {
     setRequest: (id, status) => setDB((db) => ({ requests: db.requests.map((x) => (x.id === id ? { ...x, status } : x)) })),
     updateMe: (p) => setMe(() => p),
     toggleFav: (id) => setMe((m) => ({ favs: m.favs.includes(id) ? m.favs.filter((x) => x !== id) : [...m.favs, id] })),
+    toggleLike: (key) => setMe((m) => ({ liked: (m.liked || []).includes(key) ? m.liked.filter((x) => x !== key) : [...(m.liked || []), key] })),
     toggleFollow: (id) => {
       setMe((m) => ({ follows: m.follows.includes(id) ? m.follows.filter((x) => x !== id) : [...m.follows, id] }))
       setDB((db) => ({ artists: db.artists.map((a) => (a.id === id ? { ...a, followers: a.followers + (state.me?.follows.includes(id) ? -1 : 1) } : a)) }))

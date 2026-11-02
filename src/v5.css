@@ -282,3 +282,42 @@
 .finder.cs .f-mapbtn { justify-content: center; align-items: center; }
 .f-cats5 button { height: 56px; gap: 5px; }
 .f-cats5 b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9.5px; }
+
+/* صفحه‌ی سالن: آرتیست‌های هر خدمت */
+.svc-box { border-radius: 18px; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; overflow: hidden; }
+.svc-box .svc { width: 100%; box-shadow: none !important; background: none; border-radius: 0; }
+.svc-box.on { box-shadow: 0 0 0 2px var(--ink); }
+.svc-doers { padding: 0 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+.svc-doers > small { font-size: 10.5px; }
+.doers { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.doer { flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--paper-2); text-align: right; transition: background .15s; }
+.doer span { display: flex; flex-direction: column; line-height: 1.25; }
+.doer b { font-size: 11.5px; }
+.doer small { font-size: 9.5px; color: var(--muted); }
+.doer.on { background: var(--ink); color: #fff; }
+.doer.on small { color: rgba(255, 255, 255, .7); }
+
+/* فید دنبال‌شده‌ها */
+.ig-feed { padding-top: 8px; }
+.stories { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding: 4px 16px 12px; }
+.stories button { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.st-ring { padding: 2.5px; border-radius: 50%; background: linear-gradient(45deg, var(--gold-2), var(--rose-2)); }
+.st-ring .portrait { box-shadow: 0 0 0 2.5px var(--paper); }
+.stories small { font-size: 10.5px; }
+.post { margin: 0 0 18px; background: var(--card); }
+.post header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; }
+.post header > div { flex: 1; display: flex; flex-direction: column; line-height: 1.35; }
+.post header small { font-size: 10.5px; }
+.handle-b { font-family: 'Manrope', 'IRANSansX', sans-serif; font-weight: 800; font-size: 13px; text-align: right; }
+.post-ph { aspect-ratio: 1; overflow: hidden; background: var(--paper-2); }
+.post-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-acts { display: flex; align-items: center; gap: 8px; padding: 8px 12px 2px; }
+.post-acts > button.liked { color: var(--rose-2); }
+.post-acts > span { font-size: 12.5px; font-weight: 700; }
+.post-book { margin-inline-start: auto; }
+.post-cap { padding: 2px 14px; font-size: 12.5px; }
+.post-cap b { font-family: 'Manrope', sans-serif; font-weight: 800; margin-inline-end: 4px; }
+.post-age { display: block; padding: 2px 14px 12px; font-size: 10.5px; }
+.sugg { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.sugg-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 18px; background: var(--card); box-shadow: var(--shadow-2); }
+.sugg-row > div { flex: 1; display: flex; flex-direction: column; line-height: 1.4; cursor: pointer; }
