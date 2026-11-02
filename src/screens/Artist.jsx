@@ -7,9 +7,9 @@ import { Glyph, Portrait, Work } from '../components/Art'
 import { CAT, SV, byCat, fmtDur } from '../lib/catalog'
 import { areaOf } from '../lib/geo'
 import { priceOf } from '../lib/seed'
-import { fa, haptic, short } from '../lib/util'
+import { fa, haptic, hh, relDay, short, today, toman } from '../lib/util'
 import { img } from '../lib/photos'
-import { ReviewItem, ScoreSummary } from './Salon'
+import { ReviewItem, ScoreSummary, SlotCalendar } from './Salon'
 
 const k = (n) => (n >= 1000 ? `${(n / 1000).toLocaleString('fa-IR', { maximumFractionDigits: 1 })}K` : n.toLocaleString('fa-IR'))
 
@@ -19,11 +19,17 @@ export default function Artist({ id }) {
   const nav = useNav()
   const a = db.artists.find((x) => x.id === id)
   const salon = db.salons.find((s) => s.id === a.salon)
-  const [tab, setTab] = useState('works')
+  const [tab, setTab] = useState('book')
+  const [svcSel, setSvcSel] = useState([])
+  const [pick, setPick] = useState({ artist: id, date: today(), start: null })
   const [open, setOpen] = useState(null)
   const following = me.follows.includes(a.id)
   const reviews = useMemo(() => db.reviews.filter((r) => r.artist === id).sort((x, y) => y.t - x.t), [db.reviews, id])
   const svcs = salon ? salon.svc.filter((x) => a.cats.includes(SV[x.sid].cat)).map((x) => x.sid) : a.cats.flatMap((c) => byCat(c).map((s) => s.id))
+  // محل نوبت: سالن آرتیست، یا «در منزل» با ساعت کاری پیش‌فرض
+  const venue = salon || { id: null, open: 9, close: 21, svc: [], city: a.city }
+  const dur = svcSel.reduce((x, sid) => x + SV[sid].dur, 0)
+  const total = svcSel.reduce((x, sid) => x + priceOf(salon, sid, a), 0)
   const done = db.bookings.filter((b) => b.artist === id).length + Math.round(a.reviewsN * 2.4)
   const area = areaOf(a.city, a.area)
 
@@ -51,16 +57,21 @@ export default function Artist({ id }) {
           <motion.button className={`btn ${following ? 'ghost' : 'dark'}`} whileTap={{ scale: 0.95 }} onClick={() => { haptic(12); toggleFollow(a.id) }}>
             {following ? <><Icon n="check" s={16} /> دنبال می‌کنید</> : <><Icon n="plus" s={16} /> دنبال کردن</>}
           </motion.button>
-          <motion.button className="btn primary" whileTap={{ scale: 0.95 }} onClick={() => nav.book({ salon: a.salon || undefined, artist: a.id, freelancer: !a.salon ? a.id : undefined, svc: [] })}>رزرو با {a.name.split(' ')[0]}</motion.button>
+          <motion.button className="btn primary" whileTap={{ scale: 0.95 }} onClick={() => { setTab('book'); setTimeout(() => document.querySelector('.ab-h')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50) }}>رزرو با {a.name.split(' ')[0]}</motion.button>
         </div>
-        <button className="art-where" onClick={() => salon && nav.push({ type: 'salon', id: salon.id })}>
-          <Icon n="pin" s={15} /> {salon ? <>در <b>{salon.name}</b> · {salon.hood}</> : <>آزادکار · خدمات در منزل در {area.name} و اطراف</>}
-          {salon && <Icon n="fwd" s={14} />}
+        <button className="work-at" onClick={() => salon && nav.push({ type: 'salon', id: salon.id })}>
+          {salon ? <img src={img(salon.photos[0])} alt="" /> : <span className="wa-home"><Icon n="home" s={20} /></span>}
+          <div>
+            <small>محل کار</small>
+            <b>{salon ? salon.name : 'آزادکار · خدمات در منزل'}</b>
+            <span>{salon ? `${salon.hood}، ${areaOf(salon.city, salon.area)?.name} · ${hh(salon.open)} تا ${hh(salon.close)}` : `${area.name} و اطراف`}</span>
+          </div>
+          {salon && <Icon n="fwd" s={16} />}
         </button>
         <div className="signature"><Glyph cat={SV[a.signature].cat} s={18} /><span>کار امضای {a.name.split(' ')[0]}:</span><b>{SV[a.signature].name}</b></div>
       </section>
 
-      <div className="salon-tabs"><Seg id="atab" items={[['works', 'نمونه‌کارها'], ['svc', 'خدمات و قیمت'], ['rev', 'نظرها']]} value={tab} onChange={setTab} /></div>
+      <div className="salon-tabs"><Seg id="atab" items={[['book', 'وقت گرفتن'], ['works', 'نمونه‌کارها'], ['svc', 'قیمت‌ها'], ['rev', 'نظرها']]} value={tab} onChange={setTab} /></div>
 
       {tab === 'works' && (
         <div className="works-grid">
@@ -71,6 +82,25 @@ export default function Artist({ id }) {
             </motion.button>
           ))}
         </div>
+      )}
+      {tab === 'book' && (
+        <section className="pad">
+          <h4 className="ab-h">۱. چه خدمتی از {a.name.split(' ')[0]} می‌خواهید؟</h4>
+          <div className="svc-list">
+            {svcs.map((sid) => {
+              const on = svcSel.includes(sid)
+              return (
+                <button key={sid} className={`svc ${on ? 'on' : ''}`} onClick={() => { haptic(8); setSvcSel(on ? svcSel.filter((x) => x !== sid) : [...svcSel, sid]); setPick((p) => ({ ...p, start: null })) }}>
+                  <div><b>{SV[sid].name}</b><small className="muted"><Icon n="clock" s={12} /> حداقل {fmtDur(SV[sid].dur)}</small></div>
+                  <span className="svc-price">{short(priceOf(venue, sid, a))}</span>
+                  <span className="svc-add">{on ? <Icon n="check" s={16} w={2.4} /> : <Icon n="plus" s={16} />}</span>
+                </button>
+              )
+            })}
+          </div>
+          <h4 className="ab-h">۲. روز و ساعت {salon ? `در ${salon.name}` : 'در منزل شما'}</h4>
+          <div id="art-cal"><SlotCalendar s={venue} team={[a]} svc={svcSel} dur={dur} pick={pick} setPick={setPick} single /></div>
+        </section>
       )}
       {tab === 'svc' && (
         <section className="pad svc-list">
@@ -90,6 +120,15 @@ export default function Artist({ id }) {
         </section>
       )}
       <div className="foot-space" />
+      {tab === 'book' && (
+        <div className="book-bar">
+          <div className="bb-sum">{svcSel.length ? <><b>{fa(svcSel.length)} خدمت · {toman(total)}</b><small>{pick.start != null ? `${relDay(pick.date)} · ${hh(pick.start)} با ${a.name.split(' ')[0]}` : 'ساعت آزاد را انتخاب کنید'}</small></> : <><b>خدمت را انتخاب کنید</b><small>بعد روز و ساعت آزاد {a.name.split(' ')[0]}</small></>}</div>
+          <button className={`btn primary ${pick.start != null && svcSel.length ? 'buy' : ''}`} disabled={!svcSel.length}
+            onClick={() => pick.start == null ? document.getElementById('art-cal')?.scrollIntoView({ behavior: 'smooth' }) : nav.book({ salon: a.salon || undefined, freelancer: a.salon ? undefined : a.id, artist: a.id, svc: svcSel, date: pick.date, start: pick.start })}>
+            {pick.start != null && svcSel.length ? `خرید نوبت · ${short(total)}` : 'انتخاب زمان'}
+          </button>
+        </div>
+      )}
 
       <Sheet open={!!open} onClose={() => setOpen(null)}>
         {open && (

@@ -15,7 +15,7 @@ import { addDays, ago, dayNum, fa, haptic, hh, relDay, short, today, toman, wdSh
 import { busyMap, canDo, freeStarts, priceOf } from '../lib/seed'
 
 // تقویم نیم‌ساعته‌ی سالن: هر خانه نیم ساعت؛ شروع آزاد = آرتیستی هست که به اندازه‌ی کل خدمات وقت خالی پشت‌سرهم دارد
-export function SlotCalendar({ s, team, svc, dur, pick, setPick }) {
+export function SlotCalendar({ s, team, svc, dur, pick, setPick, single }) {
   const { db } = useStore()
   const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today(), i)), [])
   const able = team.filter((a) => !svc.length || canDo(a, svc))
@@ -44,11 +44,11 @@ export function SlotCalendar({ s, team, svc, dur, pick, setPick }) {
   return (
     <div className="slotcal">
       <div className="sc-title2"><b>تقویم نوبت‌ها</b><small className="muted">{svc.length ? `بلوک ${fmtDur(slotsOf(need) * 30)} (${fa(slotsOf(need))} خانه‌ی نیم‌ساعته)` : 'برای دیدن ساعت مناسب، اول خدمت را انتخاب کنید'}</small></div>
-      <div className="chips">
+      {!single && <div className="chips">
         <button className={`chip ${pick.artist === 'any' ? 'on' : ''}`} onClick={() => set({ artist: 'any', start: null })}>هر آرتیستی</button>
         {able.map((a) => <button key={a.id} className={`chip ${pick.artist === a.id ? 'on' : ''}`} onClick={() => set({ artist: a.id, start: null })}><Portrait a={a} size={20} ring={false} /> {a.name.split(' ')[0]}</button>)}
         {!able.length && <span className="muted small">هیچ آرتیستی همه‌ی این خدمات را با هم انجام نمی‌دهد</span>}
-      </div>
+      </div>}
       <div className="days">
         {days.map((d) => (
           <button key={d} className={pick.date === d ? 'on' : ''} onClick={() => set({ date: d, start: null })}>
