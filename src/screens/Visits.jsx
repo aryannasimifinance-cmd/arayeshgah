@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
-import { Empty, Icon, Seg, Sheet } from '../components/ui'
-import { Cover, Portrait } from '../components/Art'
+import { Empty, Icon, Seg, Sheet, Stars } from '../components/ui'
+import { img } from '../lib/photos'
+import { Portrait } from '../components/Art'
 import { CRITERIA, REVIEW_TAGS, SV } from '../lib/catalog'
-import { dateLong, diffDays, fa, haptic, hh, relDay, today, toman } from '../lib/util'
+import { dateShort, fa, haptic, hh, monthName, relDay, toDate, toman } from '../lib/util'
 import { celebrate } from '../lib/fx'
 
 const WORDS = ['', 'ضعیف', 'متوسط', 'خوب', 'خیلی خوب', 'عالی']
@@ -54,6 +55,38 @@ export function ReviewSheet({ b, onClose }) {
   )
 }
 
+const yearOf = (d) => new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric' }).format(toDate(d))
+const ST = { done: ['انجام شد', 'ok'], cancelled: ['لغو شد', 'bad'], confirmed: ['تأییدشده', ''] }
+
+// یک ردیف نوبت: عکس کوچک، خدمت، سالن و آرتیست، زمان، وضعیت و کار بعدی
+function Row({ b, onReview, onCancel }) {
+  const { db } = useStore()
+  const nav = useNav()
+  const s = db.salons.find((x) => x.id === b.salon)
+  const a = db.artists.find((x) => x.id === b.artist)
+  const mine = db.reviews.find((r) => r.mine && r.salon === b.salon && r.artist === b.artist)
+  const score = mine && Object.values(mine.scores).reduce((x, y) => x + y, 0) / 5
+  return (
+    <article className={`vrow v-${b.status}`}>
+      <button className="vr-main" onClick={() => (s ? nav.push({ type: 'salon', id: s.id }) : nav.push({ type: 'artist', id: a.id }))}>
+        <span className="vr-ph"><img src={img(s ? s.photos[0] : a.works[0].ph)} alt="" /></span>
+        <div>
+          <b>{b.svc.map((id) => SV[id].name).join(' + ')}</b>
+          <small>{s ? s.name : 'در منزل'} · {a?.name}</small>
+          <small className="muted">{dateShort(b.date)} · ساعت {hh(b.start)} · {toman(b.price)}</small>
+        </div>
+        <span className={`st ${ST[b.status][1]}`}>{b.status === 'confirmed' ? relDay(b.date) : ST[b.status][0]}</span>
+      </button>
+      <div className="vr-foot">
+        {b.status === 'confirmed' && <button className="danger" onClick={() => onCancel(b)}>لغو نوبت</button>}
+        {b.status === 'done' && !b.reviewed && <button className="hl" onClick={() => onReview(b)}><Icon n="star" s={13} /> امتیاز بدید</button>}
+        {b.status === 'done' && b.reviewed && <span className="muted"><Stars v={score || 5} s={11} /> نظر شما</span>}
+        {b.status !== 'confirmed' && <button onClick={() => nav.book({ salon: b.salon || undefined, freelancer: b.salon ? undefined : b.artist, artist: b.artist, svc: b.svc })}><Icon n="route" s={13} /> رزرو دوباره</button>}
+      </div>
+    </article>
+  )
+}
+
 export default function Visits() {
   const { db, cancel, toast } = useStore()
   const nav = useNav()
@@ -66,6 +99,7 @@ export default function Visits() {
   const pending = past.filter((b) => b.status === 'done' && !b.reviewed)
   const next = up[0]
   const list = tab === 'up' ? up : past
+  const groups = Object.entries(past.reduce((m, b) => { const k = `${monthName(b.date)} ${yearOf(b.date)}`; (m[k] ||= []).push(b); return m }, {}))
 
   return (
     <div className="scroll visits">
@@ -90,35 +124,14 @@ export default function Visits() {
       <div className="pad-x"><Seg id="vtab" items={[['up', `پیش رو (${fa(up.length)})`], ['past', 'گذشته']]} value={tab} onChange={setTab} /></div>
       <div className="pad">
         {list.length === 0 && <Empty icon="cal" title={tab === 'up' ? 'نوبتی ندارید' : 'هنوز سابقه‌ای نیست'} text="وقتشه یه کم به خودتون برسید ✨"><button className="btn primary" onClick={() => nav.go('search')}>رزرو نوبت</button></Empty>}
-        {list.map((b) => {
-          const s = db.salons.find((x) => x.id === b.salon)
-          const a = db.artists.find((x) => x.id === b.artist)
-          const d = diffDays(b.date, today())
-          return (
-            <article key={b.id} className={`visit ${b.status}`}>
-              <div className="v-cover" onClick={() => (s ? nav.push({ type: 'salon', id: s.id }) : nav.push({ type: 'artist', id: a.id }))}>
-                {s ? <Cover salon={s} ratio={0.42} glyph={false} /> : <div className="v-home" />}
-                <span className="v-when">{b.status === 'confirmed' ? (d <= 1 ? relDay(b.date) : `${fa(d)} روز دیگه`) : b.status === 'cancelled' ? 'لغو شده' : 'انجام شد'}</span>
-              </div>
-              <div className="v-body">
-                <h3>{s ? s.name : 'خدمات در منزل'}</h3>
-                <p className="muted"><Icon n="cal" s={14} /> {dateLong(b.date)} · {hh(b.start)}</p>
-                <p className="v-who"><Portrait a={a} size={26} ring={false} /> {a.name} · {b.svc.map((id) => SV[id].name).join(' + ')}</p>
-                <p className="v-money"><span>بیعانه {toman(b.paid)}</span><span className="muted">از {toman(b.price)}</span></p>
-                <div className="v-actions">
-                  {b.status === 'confirmed' && <>
-                    <button className="btn ghost sm" onClick={() => toast({ icon: '🧭', text: 'مسیریابی در نقشه باز می‌شود' })}><Icon n="route" s={15} /> مسیر</button>
-                    <button className="btn ghost sm" onClick={() => toast({ icon: '📞', text: 'تماس با سالن' })}><Icon n="phone" s={15} /> تماس</button>
-                    <button className="btn ghost sm danger" onClick={() => setCx(b)}>لغو</button>
-                  </>}
-                  {b.status === 'done' && !b.reviewed && <button className="btn primary sm" onClick={() => setRev(b)}><Icon n="star" s={15} /> ثبت نظر</button>}
-                  {b.status === 'done' && b.reviewed && <span className="muted small"><Icon n="check" s={14} /> نظر شما ثبت شده</span>}
-                  {b.status !== 'confirmed' && <button className="btn ghost sm" onClick={() => nav.book({ salon: b.salon || undefined, freelancer: b.salon ? undefined : b.artist, artist: b.artist, svc: b.svc })}>رزرو دوباره</button>}
-                </div>
-              </div>
-            </article>
-          )
-        })}
+        {tab === 'up' && list.slice(1).map((b) => <Row key={b.id} b={b} onCancel={setCx} />)}
+        {tab === 'up' && list.length === 1 && <p className="muted small center">نوبت دیگری ندارید.</p>}
+        {tab === 'past' && groups.map(([m, items]) => (
+          <section key={m} className="v-month">
+            <h4>{m}<small>{fa(items.length)} نوبت</small></h4>
+            {items.map((b) => <Row key={b.id} b={b} onReview={setRev} />)}
+          </section>
+        ))}
       </div>
       <div className="foot-space" />
       <ReviewSheet b={rev} onClose={() => setRev(null)} />

@@ -7,7 +7,8 @@ import { startTab } from '../App'
 import Discover from './Discover'
 import Feed from './Feed'
 import Artists from './Artists'
-import Services, { CategoryPage } from './Services'
+import { CategoryPage } from './Services'
+import Shop, { ShopPage, Cart } from './Shop'
 import Visits from './Visits'
 import Me from './Me'
 import Salon from './Salon'
@@ -18,7 +19,7 @@ import Wizard from './Wizard'
 // ترتیب تب‌ها از راست؛ جستجو در وسط. «من» از عکس پروفایل بالای صفحه باز می‌شود
 const TABS = [
   { id: 'home', name: 'خانه', icon: 'home' },
-  { id: 'services', name: 'خدمات', icon: 'grid' },
+  { id: 'shop', name: 'فروشگاه', icon: 'bag' },
   { id: 'search', name: 'جستجو', icon: 'search', center: true },
   { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
   { id: 'visits', name: 'نوبت‌ها', icon: 'cal' },
@@ -43,7 +44,7 @@ export default function Shell() {
 
   const upcoming = db.bookings.filter((b) => b.user === 'me' && b.status === 'confirmed').length
   const toReview = db.bookings.filter((b) => b.user === 'me' && b.status === 'done' && !b.reviewed).length
-  const badge = { visits: upcoming + toReview }
+  const badge = { visits: upcoming + toReview, shop: (me.cart || []).reduce((a, i) => a + i.qty, 0) }
   const top = stack[stack.length - 1]
 
   return (
@@ -52,7 +53,7 @@ export default function Shell() {
         <div className="tab-pages">
           {tab === 'home' && <Feed />}
           {tab === 'search' && <Discover />}
-          {tab === 'services' && <Services />}
+          {tab === 'shop' && <Shop />}
           {tab === 'artists' && <Artists />}
           {tab === 'visits' && <Visits />}
         </div>
@@ -61,9 +62,11 @@ export default function Shell() {
             <motion.div key={p.k} className="page-over" style={{ zIndex: 30 + i }} initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', damping: 34, stiffness: 330 }}>
               {p.type === 'salon' && <Salon id={p.id} />}
               {p.type === 'artist' && <Artist id={p.id} />}
-              {p.type === 'results' && <Results init={p.q} title={p.title} />}
+              {p.type === 'results' && <Results init={p.q} title={p.title} who={p.who} />}
               {p.type === 'me' && <Me asPage />}
               {p.type === 'cat' && <CategoryPage id={p.id} />}
+              {p.type === 'shop' && <ShopPage id={p.id} />}
+              {p.type === 'cart' && <Cart />}
             </motion.div>
           ))}
         </AnimatePresence>

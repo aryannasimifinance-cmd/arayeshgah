@@ -15,21 +15,17 @@ export default function Artists() {
   const { db, me, toggleFollow } = useStore()
   const nav = useNav()
   const [cat, setCat] = useState('')
-  const [mode, setMode] = useState('all')
   const [t, setT] = useState('')
   const list = useMemo(() => db.artists
-    .filter((a) => a.city === me.city && (!cat || a.cats.includes(cat)) && (mode !== 'mine' || me.follows.includes(a.id)) && (mode !== 'home' || a.home)
+    .filter((a) => a.city === me.city && (!cat || a.cats.includes(cat))
       && (!t || a.name.includes(t) || a.handle.includes(t.toLowerCase())))
-    .sort((a, b) => (b.badge === 'star') - (a.badge === 'star') || b.rating - a.rating || b.followers - a.followers), [db.artists, me.city, cat, mode, t, me.follows])
+    .sort((a, b) => (b.badge === 'star') - (a.badge === 'star') || b.rating - a.rating || b.followers - a.followers), [db.artists, me.city, cat, t])
 
   return (
     <div className="scroll artists-tab">
       <header className="top plain"><div><em className="en">Find your artist</em><h1>آرتیست‌ها</h1></div></header>
       <div className="pad-x">
         <label className="search-in"><Icon n="search" s={17} /><input value={t} onChange={(e) => setT(e.target.value)} placeholder="اسم یا آیدی آرتیست" /></label>
-        <div className="chips">
-          {[['all', 'همه'], ['mine', `دنبال‌شده‌ها (${fa(me.follows.length)})`], ['home', 'در منزل']].map(([v, n]) => <button key={v} className={`chip ${mode === v ? 'on' : ''}`} onClick={() => setMode(v)}>{n}</button>)}
-        </div>
         <div className="chips">
           <button className={`chip soft ${!cat ? 'on' : ''}`} onClick={() => setCat('')}>همه‌ی تخصص‌ها</button>
           {CATS.map((c) => <button key={c.id} className={`chip soft ${cat === c.id ? 'on' : ''}`} onClick={() => setCat(cat === c.id ? '' : c.id)}><Glyph cat={c.id} s={14} /> {c.name}</button>)}

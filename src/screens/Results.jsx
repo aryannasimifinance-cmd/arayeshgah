@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store'
 import { PageHead } from './Shell'
 import { Empty, Icon, Sheet } from '../components/ui'
-import { SalonCard } from '../components/cards'
+import { ArtistCard, SalonCard } from '../components/cards'
 import { CityMap } from '../components/Maps'
 import { AMEN, CAT, SV } from '../lib/catalog'
 import { CITIES } from '../lib/geo'
@@ -36,15 +36,18 @@ export function FilterSheet({ open, onClose, q, set, count }) {
   )
 }
 
-export default function Results({ init, title }) {
+export default function Results({ init, title, who: who0 = 'salons' }) {
   const { me } = useStore()
   const [q, setQ] = useState({ ...BLANK, ...init })
   const set = (p) => setQ((x) => ({ ...x, ...p }))
   const [view, setView] = useState('list')
+  const [who, setWho] = useState(who0)
   const [filt, setFilt] = useState(false)
   const [areaOpen, setAreaOpen] = useState(false)
   const [active, setActive] = useState(null)
-  const { list } = useSearch(q)
+  const { list, artists: arts0 } = useSearch(q)
+  // آرتیست‌ها: همان فیلترها + فقط ستاره‌ها یا در منزل اگر کاشی خواسته باشد
+  const arts = arts0.filter((a) => (!q.star || a.badge === 'star') && (!q.amen.includes('home') || a.home) && a.rating >= q.minRating)
   const all = useSearch({ ...q, areas: [] }).list
   const stats = useAreaStats(all)
   const nFilt = (q.minRating ? 1 : 0) + q.amen.length + q.tiers.length + (q.kind ? 1 : 0) + (q.freeOnly ? 1 : 0)
@@ -54,13 +57,23 @@ export default function Results({ init, title }) {
   return (
     <div className="results">
       <PageHead title={head} sub={`${C.name}${q.areas.length ? ` · ${fa(q.areas.length)} ناحیه` : ''} · ${relDay(q.date) === 'امروز' || relDay(q.date) === 'فردا' ? relDay(q.date) : dateShort(q.date)}`}
-        right={<button className="icon-btn" onClick={() => setView(view === 'list' ? 'map' : 'list')} aria-label="نقشه/فهرست"><Icon n={view === 'list' ? 'map' : 'list'} /></button>} />
+        right={who === 'salons' && <button className="icon-btn" onClick={() => setView(view === 'list' ? 'map' : 'list')} aria-label="نقشه/فهرست"><Icon n={view === 'list' ? 'map' : 'list'} /></button>} />
+      <div className="who-seg">
+        {[['salons', `سالن‌ها (${fa(list.length)})`], ['artists', `آرتیست‌ها (${fa(arts.length)})`]].map(([k, n]) => (
+          <button key={k} className={who === k ? 'on' : ''} onClick={() => { setWho(k); setView('list') }}>{n}</button>
+        ))}
+      </div>
       <div className="res-bar">
         <button className={`chip ${nFilt ? 'on' : ''}`} onClick={() => setFilt(true)}><Icon n="filter" s={14} /> فیلتر{nFilt ? ` (${fa(nFilt)})` : ''}</button>
         <button className={`chip ${q.areas.length ? 'on' : ''}`} onClick={() => setAreaOpen(true)}><Icon n="pin" s={14} /> {q.areas.length ? q.areas.map((id) => C.areas.find((a) => a.id === id)?.name).join('، ') : 'ناحیه'}</button>
         {SORTS.map(([k, n]) => <button key={k} className={`chip soft ${q.sort === k ? 'on' : ''}`} onClick={() => set({ sort: k })}>{n}</button>)}
       </div>
-      {view === 'list' ? (
+      {who === 'artists' ? (
+        <div className="scroll res-list">
+          {arts.length ? <div className="artist-grid flat">{arts.map((a) => <ArtistCard key={a.id} a={a} size="lg" />)}</div> : <Empty icon="search" title="آرتیستی پیدا نشد" />}
+          <div className="foot-space" />
+        </div>
+      ) : view === 'list' ? (
         <div className="scroll res-list">
           <p className="muted small res-count">{fa(list.length)} سالن پیدا شد</p>
           {list.length ? list.map((s) => <SalonCard key={s.id} s={s} />) : (

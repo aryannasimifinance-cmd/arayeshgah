@@ -62,7 +62,7 @@ export function MonthCal({ value, onPick }) {
 // ذره‌بین: با هر قدم تکمیل‌شده یک درخشش داخلش روشن می‌شود
 function Magnifier({ step }) {
   return (
-    <motion.svg className="magnifier" width="64" height="64" viewBox="0 0 80 80" initial={{ scale: 0.8, rotate: -8, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 14 }} aria-hidden>
+    <motion.svg className="magnifier" width="46" height="46" viewBox="0 0 80 80" initial={{ scale: 0.8, rotate: -8, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 14 }} aria-hidden>
       <circle cx="34" cy="34" r="24" fill="rgba(255,255,255,.14)" stroke="#fff" strokeWidth="3" />
       <circle cx="34" cy="34" r="17" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1" />
       <path d="M52 52 70 70" stroke="#fff" strokeWidth="7" strokeLinecap="round" />
@@ -111,8 +111,7 @@ export function Finder({ onMap }) {
         <div className="finder-top">
           <div className="f-ring" style={{ '--p': done / 3 }}><span>{done === 3 ? <Icon n="check" s={14} w={2.6} /> : `${fa(done)}/۳`}</span></div>
           <Magnifier step={done} />
-          <h1>جستجوی زیبایی</h1>
-          <p>سالن، آرتیست و نوبت آزاد — هر کجا، هر زمان</p>
+          <h1>جستجو</h1>
           <div className="finder-dots">{photos.map((_, k) => <i key={k} className={k === slide % photos.length ? 'on' : ''} />)}</div>
         </div>
 
@@ -154,7 +153,7 @@ export function Finder({ onMap }) {
         <div className="f-cats5">
           {CATS.map((c) => (
             <motion.button key={c.id} className={q.cat === c.id ? 'on' : ''} style={{ '--c': c.tone }} whileTap={{ scale: 0.92 }} onClick={() => { set({ cat: q.cat === c.id ? '' : c.id, sid: '' }); touch('what') }}>
-              <Glyph cat={c.id} s={22} w={1.4} /><b>{c.name}</b>
+              <Glyph cat={c.id} s={18} w={1.5} /><b>{c.name}</b>
             </motion.button>
           ))}
         </div>

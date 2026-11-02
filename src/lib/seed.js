@@ -3,8 +3,9 @@ import { CITIES, pointIn } from './geo'
 import { SERVICES, SV, byCat } from './catalog'
 import { addDays, pick, rng, today } from './util'
 import { KIND_PH, PH } from './photos'
+import { seedMarket, seedPayouts } from './market'
 
-export const SEED_V = 5
+export const SEED_V = 9
 
 // نوع هر کسب‌وکار و دسته‌هایی که ارائه می‌دهد
 export const KINDS = {
@@ -65,10 +66,10 @@ const QUOTES = {
 const REPLIES = ['ممنونیم از لطفتون، خوشحالیم راضی بودید 🤍', 'قدم‌تون روی چشم، منتظر دیدار دوباره‌تون هستیم.', 'سپاس از وقتی که گذاشتید؛ نظرتون به تیم منتقل شد.']
 
 // تعداد کسب‌وکار در هر ناحیه (شمال شهر شلوغ‌تر)
-const DENSITY = { t1: 5, t2: 5, t3: 5, t4: 3, t5: 3, t6: 4, t7: 3, t8: 2, t22: 2, t21: 1, t9: 1, t10: 1, t11: 2, t12: 1, t13: 2, t14: 1, t15: 1, t16: 1, t17: 1, t18: 1, t19: 0, t20: 1, k1: 1, k2: 3, k3: 3, k4: 3, k5: 2, k6: 2, k7: 2, k8: 1, k9: 1, k10: 2 }
+const DENSITY = { t1: 5, t2: 5, t3: 5, t4: 3, t5: 3, t6: 4, t7: 3, t8: 2, t22: 2, t21: 1, t9: 1, t10: 1, t11: 2, t12: 1, t13: 2, t14: 1, t15: 1, t16: 1, t17: 1, t18: 1, t19: 0, t20: 1, k1: 3, k2: 3, k3: 3, k4: 3, k5: 3, k6: 2, k7: 1, k8: 1, k9: 2, k10: 2 }
 const KIND_POOL = ['salon', 'salon', 'salon', 'nail', 'lash', 'spa', 'spa', 'skin', 'bridal']
 const TIER_MUL = [0, 0.75, 1, 1.35, 1.8]
-const NORTH = ['t1', 't2', 't3', 'k1', 'k8']
+const NORTH = ['t1', 't2', 't3', 'k1', 'k3']
 
 const r1 = (x) => Math.round(x * 10) / 10
 const roundP = (x) => Math.round(x / 50000) * 50000
@@ -169,7 +170,9 @@ export function seedDB() {
   })
   // آرتیست‌های ویژه همیشه نشان ستاره دارند
   artists.filter((x) => x.badge === 'star').forEach((x) => { x.followers = Math.max(x.followers, 12000) })
-  return { v: SEED_V, salons, artists, reviews, bookings: seedBookings(salons, artists) }
+  const db = { v: SEED_V, salons, artists, reviews, bookings: seedBookings(salons, artists), ...seedMarket(salons, artists) }
+  db.payouts = seedPayouts(db)
+  return db
 }
 
 function seedBookings(salons, artists) {
@@ -187,6 +190,9 @@ function seedBookings(salons, artists) {
     mk('b1', s1, 'nail', 2, 17, 'confirmed'),
     mk('b2', s3, 'spa', -1, 18, 'done', false),
     mk('b3', s2, 'color', -24, 11, 'done', true),
+    mk('b4', s1, 'nail', -38, 16, 'cancelled', false),
+    mk('b5', s1, 'nail', -46, 15, 'done', true),
+    mk('b6', s3, 'spa', -63, 19, 'done', true),
   ]
 }
 

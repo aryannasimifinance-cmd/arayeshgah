@@ -5,7 +5,7 @@ import { DAYPARTS, SERVICES, SV, byCat } from './catalog'
 import { KINDS, freeStarts, fromPrice } from './seed'
 import { today } from './util'
 
-export const BLANK = { areas: [], cat: '', sid: '', date: today(), daypart: '', text: '', minRating: 0, amen: [], tiers: [], sort: 'best', kind: '', freeOnly: false, offer: false }
+export const BLANK = { areas: [], cat: '', sid: '', date: today(), daypart: '', text: '', minRating: 0, amen: [], tiers: [], sort: 'best', kind: '', freeOnly: false, offer: false, star: false }
 
 const norm = (s) => (s || '').toLowerCase().replace(/[‌\s]+/g, '').replace(/ي/g, 'ی').replace(/ك/g, 'ک')
 export const isOpen = (s) => { const h = new Date().getHours(); return h >= s.open && h < s.close }

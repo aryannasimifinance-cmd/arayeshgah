@@ -1,49 +1,32 @@
-import { useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
 import { Logo } from '../components/Logo'
-import { Avatar, Badge, Icon, Rating } from '../components/ui'
-import { Portrait } from '../components/Art'
-import { SalonCard } from '../components/cards'
-import { CAT } from '../lib/catalog'
-import { BLANK, useSearch } from '../lib/search'
-import { fa } from '../lib/util'
+import { Avatar, Icon } from '../components/ui'
+import { CATS } from '../lib/catalog'
+import { PH, img } from '../lib/photos'
+import { BLANK } from '../lib/search'
+import { haptic } from '../lib/util'
 import { Finder } from './Book'
 import MapTab from './MapTab'
 
-
-// گزینه‌های «برترین‌ها» زیر کارت جستجو
-const TOPS = [
-  { id: 'salons', name: 'سالن‌ها', icon: 'star' },
-  { id: 'artists', name: 'آرتیست‌ها', icon: 'crown' },
-  { id: 'free', name: 'آزاد امروز', icon: 'bolt' },
-  { id: 'offer', name: 'تخفیف‌دار', icon: 'tag' },
-  { id: 'spa', name: 'اسپا و ماساژ', icon: 'leaf' },
-  { id: 'bridal', name: 'عروس', icon: 'heart' },
+// کاشی‌های فیلتر زیر کارت جستجو؛ هر کدام صفحه‌ی سالن‌ها/آرتیست‌ها را با همان فیلتر باز می‌کند
+const QUICK = [
+  { name: 'آزاد همین امروز', ph: PH.hero[2], q: { freeOnly: true, sort: 'soon' } },
+  { name: 'برترین سالن‌ها', ph: PH.interior[1], q: { sort: 'rating', minRating: 4.6 } },
+  { name: 'آرتیست‌های ستاره', ph: PH.makeup[1], q: { star: true }, who: 'artists' },
+  { name: 'تخفیف‌دارها', ph: PH.nail[4], q: { offer: true } },
+  { name: 'خدمات در منزل', ph: PH.makeup[0], q: { amen: ['home'] }, who: 'artists' },
+  { name: 'به‌صرفه', ph: PH.interior[3], q: { sort: 'price', tiers: [1, 2] } },
 ]
 
-// صفحه‌ی وسط (جستجو): کارت جستجو + برترین‌ها
+// صفحه‌ی وسط: جستجو (کارت + کاشی‌ها) یا نقشه
 export default function Home() {
-  const { db, me } = useStore()
+  const { me } = useStore()
   const nav = useNav()
-  const [top, setTop] = useState('salons')
-  const [mode, setMode] = useState('find') // find · map
-  const free = useSearch({ ...BLANK, freeOnly: true, sort: 'soon' }).list
-  const all = useSearch({ ...BLANK, sort: 'rating' }).list
-  const score = (s) => s.rating * Math.log(s.reviewsN)
-
-  const pick = useMemo(() => {
-    const best = (l) => [...l].sort((a, b) => score(b) - score(a)).slice(0, 5)
-    if (top === 'artists') return { artists: db.artists.filter((a) => a.city === me.city).sort((a, b) => (b.badge === 'star') - (a.badge === 'star') || b.rating - a.rating || b.followers - a.followers).slice(0, 5) }
-    if (top === 'free') return { salons: free.slice(0, 5), q: { freeOnly: true, sort: 'soon' } }
-    if (top === 'offer') return { salons: best(all.filter((s) => s.offer)), q: { sort: 'rating' } }
-    if (top === 'spa') return { salons: best(all.filter((s) => s.kind === 'spa')), q: { kind: 'spa' } }
-    if (top === 'bridal') return { salons: best(all.filter((s) => s.cats.includes('bridal'))), q: { cat: 'bridal' } }
-    return { salons: best(all), q: { sort: 'rating' } }
-  }, [top, all, free, db.artists, me.city])
-  const T = TOPS.find((x) => x.id === top)
-
+  const [mode, setMode] = useState('find')
+  const open = (t) => { haptic(8); nav.push({ type: 'results', q: { ...BLANK, ...t.q }, title: t.name, who: t.who }) }
   const head = (
     <header className="search-head">
       <Logo size={15} en={false} />
@@ -64,32 +47,23 @@ export default function Home() {
       {head}
       <Finder onMap={() => setMode('map')} />
 
-      <div className="sec-title"><div><em className="en">The Best</em><h2>برترین‌ها</h2></div>
-        <button onClick={() => (top === 'artists' ? nav.go('artists') : nav.push({ type: 'results', q: { ...BLANK, ...pick.q }, title: `برترین‌ها · ${T.name}` }))}>همه</button>
-      </div>
-      <div className="top-chips">
-        {TOPS.map((t) => (
-          <button key={t.id} className={top === t.id ? 'on' : ''} onClick={() => setTop(t.id)}>
-            {top === t.id && <motion.span layoutId="top-on" className="tc-on" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
-            <Icon n={t.icon} s={15} /><span>{t.name}</span>
-          </button>
+      <div className="sec-title"><div><em className="en">Quick filters</em><h2>انتخاب سریع</h2></div></div>
+      <div className="qtiles">
+        {QUICK.map((t, i) => (
+          <motion.button key={t.name} whileTap={{ scale: 0.96 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.03 } }} onClick={() => open(t)}>
+            <img src={img(t.ph)} alt="" loading="lazy" /><b>{t.name}</b>
+          </motion.button>
         ))}
       </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={top} className="pad-x tops" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-          {pick.artists ? pick.artists.map((a, i) => {
-            const s = db.salons.find((x) => x.id === a.salon)
-            return (
-              <button key={a.id} className="top-artist" onClick={() => nav.push({ type: 'artist', id: a.id })}>
-                <span className="rank">{fa(i + 1)}</span>
-                <Portrait a={a} size={52} ring={false} />
-                <div><b>{a.name} <Badge a={a} /></b><small className="muted">{a.cats.slice(0, 2).map((c) => CAT[c].name).join(' · ')} · {s ? s.name : 'در منزل'}</small></div>
-                <Rating v={a.rating} />
-              </button>
-            )
-          }) : pick.salons.length ? pick.salons.map((s) => <SalonCard key={s.id} s={s} />) : <p className="muted center pad">فعلاً موردی نیست.</p>}
-        </motion.div>
-      </AnimatePresence>
+
+      <div className="sec-title"><div><em className="en">Services</em><h2>بر اساس خدمت</h2></div></div>
+      <div className="qtiles three">
+        {CATS.map((c, i) => (
+          <motion.button key={c.id} whileTap={{ scale: 0.96 }} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.02 } }} onClick={() => open({ name: c.name, q: { cat: c.id } })}>
+            <img src={img(PH[c.id][0])} alt="" loading="lazy" /><b>{c.name}</b>
+          </motion.button>
+        ))}
+      </div>
       <div className="foot-space" />
     </div>
   )

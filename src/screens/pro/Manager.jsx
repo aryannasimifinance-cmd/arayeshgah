@@ -8,6 +8,7 @@ import { CAT, SV, fmtDur } from '../../lib/catalog'
 import { SOURCE_NAME, agenda, clientBook, dayTotals, favSvc } from '../../lib/agenda'
 import { KINDS } from '../../lib/seed'
 import { img } from '../../lib/photos'
+import { PCATS, PCAT, SHOP_PH, lastDays } from '../../lib/market'
 import { addDays, ago, dateLong, dateShort, dayNum, fa, haptic, hh, relDay, short, today, toman, wdShort } from '../../lib/util'
 
 const NAV = [
@@ -18,6 +19,7 @@ const NAV = [
   { id: 'services', name: 'خدمات و قیمت', icon: 'tag' },
   { id: 'clients', name: 'مشتری‌ها', icon: 'heart' },
   { id: 'reviews', name: 'نظرها', icon: 'star' },
+  { id: 'shop', name: 'فروشگاه من', icon: 'bag' },
   { id: 'finance', name: 'مالی', icon: 'money' },
 ]
 const COMMISSION = 0.1 // کارمزد بیوتی‌ست فقط روی نوبت‌های آنلاین
@@ -67,6 +69,7 @@ export default function Manager({ id }) {
           {sec === 'clients' && <Clients {...props} />}
           {sec === 'reviews' && <Reviews {...props} />}
           {sec === 'finance' && <Finance {...props} />}
+          {sec === 'shop' && <MyShop {...props} />}
         </motion.div>
       </main>
       <WalkIn s={s} team={team} init={walk} onClose={() => setWalk(null)} />
@@ -332,6 +335,75 @@ function Finance({ team }) {
         ))}</div>
         <div className="legend"><span className="src src-app">بیوتی‌ست</span><span className="src src-phone">تلفنی</span><span className="src src-walkin">حضوری</span></div>
       </Panel>
+    </>
+  )
+}
+
+// ---------- فروشگاه سالن در مارکت‌پلیس ----------
+function MyShop({ s }) {
+  const { db, openShop, addProduct, updateProduct, shipOrder, toast } = useStore()
+  const sh = db.shops.find((x) => x.salon === s.id)
+  const [f, setF] = useState(null)
+  if (!sh) return (
+    <Panel className="shop-intro">
+      <img src={img(SHOP_PH[1])} alt="" />
+      <div>
+        <h3>فروشگاه سالن‌تان را در بیوتی‌ست باز کنید</h3>
+        <p className="muted">محصولاتی که در سالن استفاده می‌کنید را به مشتری‌ها بفروشید. پرداخت نزد بیوتی‌ست می‌ماند و بعد از تحویل، منهای کارمزد ٪{fa(Math.round(db.settings.shopRate * 100))} هر شنبه به حساب شما واریز می‌شود.</p>
+        <button className="btn primary" onClick={() => { openShop(s); toast({ icon: '🛍️', text: 'درخواست ثبت شد؛ بعد از تأیید مدیر بیوتی‌ست فعال می‌شود' }) }}>درخواست باز کردن فروشگاه</button>
+      </div>
+    </Panel>
+  )
+  const prods = db.products.filter((p) => p.shop === sh.id)
+  const orders = db.orders.filter((o) => o.shop === sh.id).sort((a, b) => (b.t || 0) - (a.t || 0) || b.date.localeCompare(a.date))
+  const d30 = lastDays(30)
+  const sales = orders.filter((o) => d30.includes(o.date)).reduce((a, o) => a + o.total, 0)
+  const ST = { paid: 'پرداخت‌شده · آماده‌ی ارسال', shipped: 'ارسال شد', delivered: 'تحویل شد' }
+  return (
+    <>
+      {sh.status === 'pending' && <div className="warn">فروشگاه شما در انتظار تأیید مدیر بیوتی‌ست است؛ تا تأیید، در اپ دیده نمی‌شود. محصولات را از همین حالا اضافه کنید.</div>}
+      <div className="kpis">
+        <Kpi label="فروش ۳۰ روز" value={short(sales)} sub="تومان" icon="money" />
+        <Kpi label="کارمزد بیوتی‌ست" value={`٪${fa(Math.round(sh.rate * 100))}`} sub={short(sales * sh.rate)} icon="tag" />
+        <Kpi label="سفارش‌های در انتظار ارسال" value={fa(orders.filter((o) => o.status === 'paid').length)} icon="bag" />
+        <Kpi label="محصولات" value={fa(prods.length)} sub={`${fa(prods.filter((p) => !p.stock).length)} ناموجود`} icon="grid" />
+      </div>
+      <div className="grid-2 wide-first">
+        <Panel title="محصولات" action={<button className="btn primary sm" onClick={() => setF({ name: '', brand: '', cat: 'skin', price: 300000, stock: 10 })}><Icon n="plus" s={14} /> محصول جدید</button>}>
+          <table className="tbl">
+            <thead><tr><th>محصول</th><th>دسته</th><th>قیمت (تومان)</th><th>موجودی</th><th>فروش</th></tr></thead>
+            <tbody>{prods.map((p) => (
+              <tr key={p.id}>
+                <td><span className="cell-u"><img className="tbl-img" src={img(p.photo)} alt="" />{p.name}</span></td><td>{PCAT[p.cat].name}</td>
+                <td><input className="tbl-in" type="number" step="10000" value={p.price} onChange={(e) => updateProduct(p.id, { price: Math.max(0, +e.target.value) })} /></td>
+                <td><input className="tbl-in sm" type="number" value={p.stock} onChange={(e) => updateProduct(p.id, { stock: Math.max(0, +e.target.value) })} /></td>
+                <td>{fa(p.sold)}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </Panel>
+        <Panel title="سفارش‌ها">
+          {orders.slice(0, 12).map((o) => (
+            <div key={o.id} className="order-row">
+              <div><b>{o.buyer}</b><small className="muted">{dateShort(o.date)} · {fa(o.items.reduce((a, i) => a + i.qty, 0))} کالا · {toman(o.total)}</small></div>
+              {o.status === 'delivered' ? <span className="st done">{ST[o.status]}</span> : <button className="btn ghost sm" onClick={() => shipOrder(o.id)}>{o.status === 'paid' ? 'ارسال شد' : 'تحویل شد'}</button>}
+            </div>
+          ))}
+          {!orders.length && <p className="muted">هنوز سفارشی نیامده.</p>}
+        </Panel>
+      </div>
+      <Sheet open={!!f} onClose={() => setF(null)} title="محصول جدید" className="desk-sheet">
+        {f && (
+          <div className="pad form-grid">
+            <label>نام محصول<input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="مثلاً سرم آبرسان" /></label>
+            <label>برند<input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></label>
+            <label>دسته<select value={f.cat} onChange={(e) => setF({ ...f, cat: e.target.value })}>{PCATS.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+            <label>قیمت (تومان)<input type="number" value={f.price} onChange={(e) => setF({ ...f, price: +e.target.value })} /></label>
+            <label>موجودی<input type="number" value={f.stock} onChange={(e) => setF({ ...f, stock: +e.target.value })} /></label>
+            <button className="btn primary full" disabled={!f.name.trim() || !f.price} onClick={() => { addProduct({ ...f, shop: sh.id, brand: f.brand || s.word, photo: SHOP_PH[0] }); toast({ icon: '✓', text: 'محصول اضافه شد' }); setF(null) }}>افزودن</button>
+          </div>
+        )}
+      </Sheet>
     </>
   )
 }

@@ -108,6 +108,7 @@ function Login({ go }) {
         <button type="button" onClick={() => demo('customer')}>مشتری عادی</button>
         <button type="button" onClick={() => demo('artist')}>آرتیست</button>
         <button type="button" onClick={() => demo('manager')}>صاحب سالن</button>
+        <button type="button" onClick={() => demo('admin')}>مدیر کل</button>
       </div>
     </motion.form>
   )
@@ -219,8 +220,8 @@ function Forgot({ go }) {
 
 // ---------- درخواست همکاری صاحب سالن یا آرتیست ----------
 function Partner({ go }) {
-  const { toast } = useStore()
-  const [f, setF] = useState({ type: 'salon', name: '', phone: '', biz: '' })
+  const { addRequest, toast } = useStore()
+  const [f, setF] = useState({ type: 'salon', name: '', phone: '', biz: '', code: '' })
   const set = (p) => setF((x) => ({ ...x, ...p }))
   return (
     <motion.section className="gate-in form" {...slide}>
@@ -231,7 +232,8 @@ function Partner({ go }) {
       <Field label="نام و نام خانوادگی"><input className="in" value={f.name} onChange={(e) => set({ name: e.target.value })} /></Field>
       <Field label="شماره موبایل"><input className="in" dir="ltr" value={f.phone} onChange={(e) => set({ phone: e.target.value })} placeholder="09…" /></Field>
       <Field label={f.type === 'salon' ? 'نام سالن و محله' : 'تخصص و محل کار'}><input className="in" value={f.biz} onChange={(e) => set({ biz: e.target.value })} /></Field>
-      <button className="btn primary block lg" disabled={!f.name || !/^09\d{9}$/.test(toEn(f.phone)) || !f.biz} onClick={() => { toast({ icon: '🤝', text: 'درخواست ثبت شد؛ کارشناسان ما تماس می‌گیرند' }); go('login') }}>ارسال درخواست</button>
+      <Field label="کد معرف (اگر عامل فروش معرفی‌تان کرده)"><input className="in" dir="ltr" value={f.code} onChange={(e) => set({ code: e.target.value.toUpperCase() })} placeholder="BS-SARA" /></Field>
+      <button className="btn primary block lg" disabled={!f.name || !/^09\d{9}$/.test(toEn(f.phone)) || !f.biz} onClick={() => { addRequest({ ...f, phone: toEn(f.phone) }); toast({ icon: '🤝', text: 'درخواست ثبت شد؛ کارشناسان ما تماس می‌گیرند' }); go('login') }}>ارسال درخواست</button>
     </motion.section>
   )
 }

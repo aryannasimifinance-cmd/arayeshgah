@@ -26,6 +26,7 @@ export const demoAccounts = (db) => [
   { username: 'negar', phone: '09120000000', pass: DEMO_PASS, role: 'customer', name: 'نگار کاظمی', city: 'tehran', area: 't2' },
   ...(() => { const a = db.artists.find((x) => x.badge === 'star' && x.salon); return a ? [{ username: a.handle, phone: '09121111111', pass: DEMO_PASS, role: 'artist', id: a.id, name: a.name }] : [] })(),
   ...(() => { const s = db.salons.find((x) => x.kind === 'salon' && x.city === 'tehran'); return s ? [{ username: 'salon', phone: '09122222222', pass: DEMO_PASS, role: 'manager', id: s.id, name: s.name }] : [] })(),
+  { username: 'admin', phone: '09123333333', pass: DEMO_PASS, role: 'admin', name: 'مدیر بیوتی‌ست' },
 ]
 
 export function StoreProvider({ children }) {
@@ -69,6 +70,32 @@ export function StoreProvider({ children }) {
     addWalkin: (b) => setDB((db) => ({ bookings: [...db.bookings, { ...b, id: uid('w'), status: 'confirmed', user: 'walkin', t: Date.now() }] })),
     reply: (rid, text) => setDB((db) => ({ reviews: db.reviews.map((r) => (r.id === rid ? { ...r, reply: text } : r)) })),
     updateSalon: (sid, f) => setDB((db) => ({ salons: db.salons.map((s) => (s.id === sid ? { ...s, ...f(s) } : s)) })),
+    // ---- فروشگاه (مشتری) ----
+    addToCart: (pid, qty = 1) => setMe((m) => { const c = m.cart || []; const x = c.find((i) => i.pid === pid); return { cart: x ? c.map((i) => (i.pid === pid ? { ...i, qty: Math.max(0, i.qty + qty) } : i)).filter((i) => i.qty > 0) : qty > 0 ? [...c, { pid, qty }] : c } }),
+    // سبد به تفکیک فروشگاه سفارش می‌شود؛ پول نزد پلتفرم می‌ماند تا تسویه
+    checkout: (method) => {
+      const cart = state.me?.cart || []
+      const prods = state.db.products
+      const byShop = {}
+      cart.forEach((i) => { const p = prods.find((x) => x.id === i.pid); if (p) (byShop[p.shop] ||= []).push({ pid: p.id, qty: i.qty, price: p.price }) })
+      const orders = Object.entries(byShop).map(([shop, items]) => ({ id: uid('o'), shop, date: new Date().toISOString().slice(0, 10), items, total: items.reduce((s, x) => s + x.price * x.qty, 0), buyer: state.me.name, user: 'me', status: 'paid', t: Date.now() }))
+      const total = orders.reduce((s, o) => s + o.total, 0)
+      setDB((db) => ({ orders: [...db.orders, ...orders], products: db.products.map((p) => { const i = cart.find((c) => c.pid === p.id); return i ? { ...p, stock: Math.max(0, p.stock - i.qty), sold: p.sold + i.qty } : p }) }))
+      setMe((m) => ({ cart: [], wallet: method === 'wallet' ? m.wallet - total : m.wallet, notes: [{ id: uid('n'), text: `سفارش شما (${orders.length.toLocaleString('fa-IR')} مرسوله) ثبت شد.`, t: Date.now(), read: false }, ...m.notes] }))
+      return orders
+    },
+    // ---- فروشگاه (صاحب سالن) ----
+    openShop: (salon) => setDB((db) => ({ shops: [...db.shops, { id: uid('p'), name: `فروشگاه ${salon.name}`, type: 'salon', salon: salon.id, city: salon.city, agent: salon.agent, cover: salon.photos[0], logo: salon.photos[1] || salon.photos[0], about: `محصولاتی که در ${salon.name} استفاده می‌کنیم.`, cats: ['skin', 'hair'], rate: db.settings.shopRate, status: 'pending', rating: 0, joined: new Date().toISOString().slice(0, 10) }] })),
+    addProduct: (p) => setDB((db) => ({ products: [...db.products, { id: uid('pr'), rating: 0, sold: 0, old: null, ...p }] })),
+    updateProduct: (id, p) => setDB((db) => ({ products: db.products.map((x) => (x.id === id ? { ...x, ...p } : x)) })),
+    shipOrder: (id) => setDB((db) => ({ orders: db.orders.map((o) => (o.id === id ? { ...o, status: o.status === 'paid' ? 'shipped' : 'delivered' } : o)) })),
+    // ---- مدیر کل ----
+    setEntity: (kind, id, p) => setDB((db) => ({ [kind]: db[kind].map((x) => (x.id === id ? { ...x, ...p } : x)) })),
+    addAgent: (g) => setDB((db) => ({ agents: [...db.agents, { id: uid('g'), status: 'active', joined: new Date().toISOString().slice(0, 10), hue: Math.floor(Math.random() * 360), ...g }] })),
+    payAgent: (agent, items) => setDB((db) => ({ payouts: [...db.payouts, ...items.map((x) => ({ id: uid('pay'), agent, month: x.m, amount: x.amount, t: Date.now() }))] })),
+    setSettings: (p) => setDB((db) => ({ settings: { ...db.settings, ...p } })),
+    addRequest: (q) => setDB((db) => ({ requests: [{ id: uid('q'), status: 'new', t: Date.now(), ...q }, ...db.requests] })),
+    setRequest: (id, status) => setDB((db) => ({ requests: db.requests.map((x) => (x.id === id ? { ...x, status } : x)) })),
     updateMe: (p) => setMe(() => p),
     toggleFav: (id) => setMe((m) => ({ favs: m.favs.includes(id) ? m.favs.filter((x) => x !== id) : [...m.favs, id] })),
     toggleFollow: (id) => {

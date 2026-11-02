@@ -16,7 +16,7 @@ const short = (a) => (a.id.startsWith('t') ? fa(a.id.slice(1)) : a.name)
 // شهر عریض است و گوشی باریک: کمی بزرگ‌تر از «جا شدن کامل»
 const cityView = (m, C, animate) => {
   const b = L.latLngBounds(C.outline)
-  const z = m.getBoundsZoom(b) + 0.75
+  const z = m.getBoundsZoom(b) + (C.en === 'Tehran' ? 0.75 : 0) // کرج بلند است و بدون بزرگ‌نمایی جا می‌شود
   animate ? m.flyTo(b.getCenter(), z, { duration: 0.7 }) : m.setView(b.getCenter(), z)
 }
 
