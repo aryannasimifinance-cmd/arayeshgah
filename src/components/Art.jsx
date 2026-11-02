@@ -1,6 +1,5 @@
-import { useId } from 'react'
 import { CAT } from '../lib/catalog'
-import { rng } from '../lib/util'
+import { img } from '../lib/photos'
 
 // طرح‌های خطی هر دسته (۲۴×۲۴)
 const G = {
@@ -29,90 +28,32 @@ const PAL = {
   bridal: ['#F5EEE2', '#E5D3AF', '#A88552'],
 }
 
-// کاور سالن: طاق آینه‌ای + لکه‌های نرم + نقش دسته؛ از بذر هر سالن ساخته می‌شود
-export function Cover({ salon, ratio = 0.62, glyph = true, className = '' }) {
-  const id = useId().replace(/:/g, '')
-  const r = rng(salon.seed)
-  const [a, b, c] = PAL[salon.kind] || PAL.salon
-  const W = 400, H = W * ratio
-  const blobs = Array.from({ length: 3 }, () => ({ x: r() * W, y: r() * H, rr: 90 + r() * 140 }))
-  const ax = 70 + r() * (W - 200), aw = 120, ah = H * 0.78
+// کاور سالن: عکس اصلی (یا عکس i ام گالری)
+export function Cover({ salon, ratio = 0.62, i = 0, className = '' }) {
+  const id = salon.photos?.[i % (salon.photos?.length || 1)]
   return (
-    <svg className={`cover ${className}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden>
-      <defs>
-        <linearGradient id={`g${id}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={a} /><stop offset="1" stopColor={b} /></linearGradient>
-        <radialGradient id={`b${id}`}><stop offset="0" stopColor={c} stopOpacity=".55" /><stop offset="1" stopColor={c} stopOpacity="0" /></radialGradient>
-        <radialGradient id={`w${id}`}><stop offset="0" stopColor="#fff" stopOpacity=".7" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
-        <filter id={`n${id}`}><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .07 0" /></filter>
-      </defs>
-      <rect width={W} height={H} fill={`url(#g${id})`} />
-      {blobs.map((o, i) => <circle key={i} cx={o.x} cy={o.y} r={o.rr} fill={`url(#${i ? 'b' : 'w'}${id})`} />)}
-      {/* طاق */}
-      <path d={`M${ax} ${H} V${H - ah + aw / 2} a${aw / 2} ${aw / 2} 0 0 1 ${aw} 0 V${H}`} fill="#fff" fillOpacity=".22" stroke="#fff" strokeOpacity=".75" strokeWidth="1.2" />
-      <path d={`M${ax + 10} ${H} V${H - ah + aw / 2 + 4} a${aw / 2 - 10} ${aw / 2 - 10} 0 0 1 ${aw - 20} 0 V${H}`} fill="none" stroke="#fff" strokeOpacity=".45" strokeWidth=".8" />
-      {glyph && <g transform={`translate(${ax + aw / 2 - 22} ${H - ah / 2 - 10}) scale(1.85)`}><g stroke="#fff" strokeWidth=".9" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity=".95">{G[salon.cats[0]]}</g></g>}
-      <rect width={W} height={H} filter={`url(#n${id})`} />
-    </svg>
+    <div className={`cover ${className}`} style={{ aspectRatio: `${1 / ratio}`, background: (PAL[salon.kind] || PAL.salon)[1] }}>
+      {id && <img src={img(id)} alt="" loading="lazy" decoding="async" />}
+    </div>
   )
 }
 
-// کاشی نمونه‌کار آرتیست: هر دسته یک نقش انتزاعی دارد
+// نمونه‌کار آرتیست
 export function Work({ w, className = '' }) {
-  const id = useId().replace(/:/g, '')
-  const r = rng(w.seed)
-  const tone = CAT[w.cat]?.tone || '#C9A27E'
-  const hue = r() * 40 - 20
-  const S = 200
-  const waves = Array.from({ length: 7 }, (_, i) => i)
   return (
-    <svg className={`work ${className}`} viewBox={`0 0 ${S} ${S}`} aria-hidden style={{ filter: `hue-rotate(${hue}deg)` }}>
-      <defs>
-        <linearGradient id={`k${id}`} x1="0" y1="0" x2={r()} y2="1"><stop offset="0" stopColor="#FBF4EF" /><stop offset="1" stopColor={tone} /></linearGradient>
-        <radialGradient id={`h${id}`} cx=".3" cy=".25"><stop offset="0" stopColor="#fff" stopOpacity=".8" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
-      </defs>
-      <rect width={S} height={S} fill={`url(#k${id})`} />
-      {(w.cat === 'hair' || w.cat === 'color' || w.cat === 'bridal') && waves.map((i) => (
-        <path key={i} d={`M${-20 + i * 12} ${-10} C ${60 + i * 14 + r() * 30} ${60}, ${-10 + i * 18} ${130}, ${70 + i * 16} ${S + 20}`} fill="none" stroke="#fff" strokeOpacity={0.25 + (i % 3) * 0.15} strokeWidth={6 + r() * 8} strokeLinecap="round" />
-      ))}
-      {w.cat === 'nail' && [0, 1, 2, 3, 4].map((i) => (
-        <g key={i} transform={`translate(${28 + i * 32} ${70 + Math.abs(2 - i) * 14}) rotate(${(i - 2) * 6})`}>
-          <rect x="-11" y="0" width="22" height="58" rx="11" fill="#fff" fillOpacity=".35" />
-          <rect x="-9" y="2" width="18" height="34" rx="9" fill={tone} stroke="#fff" strokeOpacity=".8" />
-          <ellipse cx="-3" cy="12" rx="2.5" ry="7" fill="#fff" fillOpacity=".6" />
-        </g>
-      ))}
-      {(w.cat === 'brow' || w.cat === 'pmu') && <g fill="none" stroke="#5A4038" strokeOpacity=".55" strokeLinecap="round">
-        <path d="M45 82 Q100 52 160 76" strokeWidth="9" />
-        <path d="M50 122 Q100 96 152 122 Q100 146 50 122Z" strokeWidth="2" />
-        {Array.from({ length: 9 }, (_, i) => <path key={i} d={`M${62 + i * 10} ${110 - Math.sin(i / 2.6) * 6} l${-4 + i} -12`} strokeWidth="1.6" />)}
-        <circle cx="101" cy="122" r="11" fill="#5A4038" fillOpacity=".4" stroke="none" />
-      </g>}
-      {(w.cat === 'makeup') && <g transform="translate(100 108)">
-        <path d="M-56 0 C-30 -26 -12 -18 0 -10 C 12 -18 30 -26 56 0 C 30 30 -30 30 -56 0Z" fill={tone} fillOpacity=".9" stroke="#fff" strokeOpacity=".6" />
-        <path d="M-56 0 C-20 6 20 6 56 0" fill="none" stroke="#fff" strokeOpacity=".5" />
-      </g>}
-      {(w.cat === 'skin' || w.cat === 'spa' || w.cat === 'wax') && [0, 1, 2].map((i) => (
-        <circle key={i} cx={60 + i * 42} cy={120 - (i % 2) * 22} r={26 - i * 3} fill="#fff" fillOpacity={0.25 + i * 0.12} stroke="#fff" strokeOpacity=".6" />
-      ))}
-      <rect width={S} height={S} fill={`url(#h${id})`} />
-    </svg>
+    <div className={`work ${className}`} style={{ background: CAT[w.cat]?.tone }}>
+      {w.ph && <img src={img(w.ph)} alt={w.title} loading="lazy" decoding="async" />}
+    </div>
   )
 }
 
-// پرتره‌ی آرتیست: حرف اول نام روی گرادیان گرم + حلقه‌ی ظریف
+// پرتره‌ی آرتیست: عکس کار امضایش در قاب گرد، با حلقه‌ی طلایی برای ستاره‌ها
 export function Portrait({ a, size = 64, ring = true }) {
-  const id = useId().replace(/:/g, '')
-  const h = a.hue % 50 // رنج نود و رز
-  const c1 = `hsl(${(h + 5) % 360} 45% 88%)`, c2 = `hsl(${(h + 345) % 360} 30% 70%)`
+  const ph = a.works?.[0]?.ph
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="portrait" aria-hidden>
-      <defs><linearGradient id={`p${id}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={c1} /><stop offset="1" stopColor={c2} /></linearGradient></defs>
-      {ring && <circle cx="50" cy="50" r="49" fill="none" stroke={a.badge === 'star' ? 'var(--gold)' : 'var(--line-2)'} strokeWidth="1.5" />}
-      <circle cx="50" cy="50" r={ring ? 44 : 50} fill={`url(#p${id})`} />
-      {/* نیم‌رخ خطی */}
-      <path d="M58 26c-9-4-21 1-23 12-1 6 1 9-1 13l-4 6 5 2c0 4 0 8 3 9 3 1 7 0 9 0l1 10" fill="none" stroke="#fff" strokeOpacity=".8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M58 26c10 4 14 16 11 27-3 10-2 18 4 26" fill="none" stroke="#fff" strokeOpacity=".55" strokeWidth="1.3" strokeLinecap="round" />
-      <text x="73" y="40" textAnchor="middle" fontSize="20" fill="#fff" fontWeight="700" style={{ fontFamily: 'var(--fa)' }}>{a.name[0]}</text>
-    </svg>
+    <span className={`portrait ${ring ? 'ring' : ''} ${a.badge === 'star' ? 'star' : ''}`} style={{ width: size, height: size }}>
+      {ph ? <img src={img(ph)} alt="" loading="lazy" /> : <b>{a.name[0]}</b>}
+      {size >= 56 && <i>{a.name[0]}</i>}
+    </span>
   )
 }

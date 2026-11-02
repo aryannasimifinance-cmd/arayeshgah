@@ -2,8 +2,9 @@
 import { CITIES } from './geo'
 import { SERVICES, SV, byCat } from './catalog'
 import { addDays, pick, rng, today } from './util'
+import { KIND_PH, PH } from './photos'
 
-export const SEED_V = 3
+export const SEED_V = 4
 
 // نوع هر کسب‌وکار و دسته‌هایی که ارائه می‌دهد
 export const KINDS = {
@@ -77,6 +78,15 @@ export function seedDB() {
   const salons = [], artists = [], reviews = []
   let w = 0, a = 0
   const usedFirst = {}
+  // عکس‌ها به نوبت از هر دسته برداشته می‌شوند تا تکرار کم باشد
+  const cursor = {}
+  const nextPh = (k) => { const list = PH[k]; const i = (cursor[k] = (cursor[k] ?? Math.floor(r() * list.length)) + 1); return list[i % list.length] }
+  const salonPhotos = (kind, cats) => {
+    const pools = KIND_PH[kind]
+    const out = [nextPh(pools[0])]
+    ;[...pools.slice(1), ...cats].forEach((k) => { if (out.length < 5 && PH[k]) { const p = nextPh(k); if (!out.includes(p)) out.push(p) } })
+    return out
+  }
 
   const makeArtist = (cats, salon, city, area) => {
     let f = pick(r, FIRST)
@@ -96,7 +106,7 @@ export function seedDB() {
       badge: top ? 'star' : r() < 0.18 ? 'rising' : null, mul: r1(top ? 1.2 + r() * 0.3 : 0.9 + r() * 0.25), hue: Math.floor(r() * 360),
       home: !salon || r() < 0.15, seed: Math.floor(r() * 1e6),
       bio: `${WORKS[main][0]} و ${WORKS[main][1] || 'جزئیات ظریف'} تخصص منه. ${top ? 'هر کار یک امضاست.' : 'با حوصله و دقت، برای شما.'}`,
-      works: Array.from({ length: 6 + Math.floor(r() * 4) }, (_, i) => { const c = spec[i % spec.length]; return { cat: c, title: WORKS[c][Math.floor(r() * WORKS[c].length)], seed: Math.floor(r() * 1e6), likes: Math.floor(40 + r() * 2400) } }),
+      works: Array.from({ length: 6 + Math.floor(r() * 4) }, (_, i) => { const c = spec[i % spec.length]; return { cat: c, title: WORKS[c][Math.floor(r() * WORKS[c].length)], seed: Math.floor(r() * 1e6), likes: Math.floor(40 + r() * 2400), ph: nextPh(c) } }),
     }
     artists.push(art)
     return art
@@ -123,6 +133,7 @@ export function seedDB() {
           offer: r() < 0.22 ? { pct: pick(r, [10, 15, 20, 25]), cat: cats[0] } : null,
           about: `${K.name} ${word} در ${ar.hoods[0]}؛ ${tier >= 3 ? 'فضایی لوکس و آرام با تیمی از بهترین آرتیست‌ها' : 'فضایی صمیمی، تمیز و دقیق'} — فقط مخصوص بانوان.`,
           artists: [],
+          photos: salonPhotos(kind, cats),
         }
         salons.push(s)
         const n = 2 + Math.floor(r() * 3)

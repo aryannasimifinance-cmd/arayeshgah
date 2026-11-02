@@ -1,16 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
-import { Icon, Seg, Sheet } from '../components/ui'
+import { Icon, Sheet } from '../components/ui'
 import { Glyph } from '../components/Art'
 import { TileMap } from '../components/Maps'
 import { CATS, CAT, DAYPARTS, byCat, fmtDur } from '../lib/catalog'
 import { CITIES, CITY_IDS } from '../lib/geo'
+import { PH, img } from '../lib/photos'
 import { BLANK, useAreaStats, useSearch } from '../lib/search'
-import { addDays, dayNum, fa, haptic, km, relDay, short, today, wdShort } from '../lib/util'
+import { addDays, dayNum, fa, haptic, km, relDay, today, wdShort } from '../lib/util'
 
-const SHORTCUTS = [
+export const SHORTCUTS = [
   { id: 'today', name: 'نوبت آزاد امروز', icon: 'bolt', q: { freeOnly: true, sort: 'soon' } },
   { id: 'top', name: 'بالاترین امتیاز', icon: 'star', q: { sort: 'rating', minRating: 4.6 } },
   { id: 'home', name: 'خدمات در منزل', icon: 'home', q: { amen: ['home'] } },
@@ -35,7 +36,7 @@ export function AreaSheet({ open, onClose, areas, setAreas }) {
         <label className="search-in"><Icon n="search" s={17} /><input value={t} onChange={(e) => setT(e.target.value)} placeholder="محله رو بنویسید؛ مثلاً ونک یا گوهردشت" /></label>
         {hits.length > 0 && <div className="chips wrap">{hits.map((a) => <button key={a.id} className={`chip ${areas.includes(a.id) ? 'on' : ''}`} onClick={() => toggle(a.id)}>{a.name} <small>· {a.hoods.find((h) => h.includes(t)) || a.hoods[0]}</small></button>)}</div>}
         <TileMap city={me.city} selected={areas} onToggle={toggle} stats={stats} />
-        <p className="muted small center">نقشه‌ی شماتیک — شمال بالا. رنگ پررنگ‌تر یعنی سالن بیشتر.</p>
+        <p className="muted small center">شمال بالا · رنگ پررنگ‌تر یعنی سالن بیشتر</p>
       </div>
       <div className="sheet-foot">
         <button className="btn ghost" onClick={() => setAreas([])}>همه‌ی شهر</button>
@@ -45,18 +46,103 @@ export function AreaSheet({ open, onClose, areas, setAreas }) {
   )
 }
 
-export default function Book() {
-  const { me, updateMe, toast } = useStore()
+// کارت جستجوی صفحه‌ی اول: کجا ← چه خدمتی ← کی؛ نتیجه سالن‌های آزاد است
+export function Finder() {
+  const { me, updateMe } = useStore()
   const nav = useNav()
-  const [q, setQ] = useState(BLANK)
+  const [q, setQ] = useState({ ...BLANK, freeOnly: true, sort: 'soon' })
+  const [touched, setTouched] = useState({ where: false, what: false, when: false })
   const [areaOpen, setAreaOpen] = useState(false)
   const set = (p) => setQ((x) => ({ ...x, ...p }))
+  const touch = (k) => { haptic(8); setTouched((t) => ({ ...t, [k]: true })) }
   const { list } = useSearch(q)
   const C = CITIES[me.city]
   const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today(), i)), [])
-  const done = [q.cat, true, q.date !== today() || q.daypart].filter(Boolean).length
-  const go = (extra = {}, title) => nav.push({ type: 'results', q: { ...q, ...extra }, title })
+  const done = Object.values(touched).filter(Boolean).length
+  // عکس پس‌زمینه با دسته‌ی انتخابی عوض می‌شود
+  const photos = q.cat ? PH[q.cat].slice(0, 4) : PH.hero
+  const [slide, setSlide] = useState(0)
+  useEffect(() => { setSlide(0); const t = setInterval(() => setSlide((x) => x + 1), 5000); return () => clearInterval(t) }, [q.cat])
+  const cats = useRef(null)
+  const go = () => nav.push({ type: 'results', q, title: q.sid ? undefined : q.cat ? CAT[q.cat].name : 'سالن‌های آزاد' })
+  const cur = photos[slide % photos.length]
 
+  return (
+    <section className="finder photo">
+      <AnimatePresence>
+        <motion.img key={cur} className="finder-bg" src={img(cur)} alt="" initial={{ opacity: 0, scale: 1.06 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} />
+      </AnimatePresence>
+      <div className="finder-shade" />
+      <div className="finder-in">
+        <div className="finder-head">
+          <div className="ring" style={{ '--p': done / 3 }}><span>{done === 3 ? <Icon n="check" s={15} w={2.6} /> : `${fa(done)}/۳`}</span></div>
+          <div><em className="en">Book your glow.</em><h1>نوبت زیبایی‌تون، همین امروز</h1></div>
+        </div>
+        <div className="finder-dots">{photos.map((_, k) => <i key={k} className={k === slide % photos.length ? 'on' : ''} />)}</div>
+
+        {/* ۱. کجا */}
+        <div className="f-step"><i className={touched.where ? 'ok' : ''}>۱</i><b>کجا؟</b></div>
+        <div className="f-cities">
+          {CITY_IDS.map((c) => (
+            <motion.button key={c} className={me.city === c ? 'on' : ''} whileTap={{ scale: 0.95 }} onClick={() => { updateMe({ city: c, area: null }); set({ areas: [] }); touch('where') }}>
+              <em className="en">{CITIES[c].en}</em><b>{CITIES[c].name}</b>
+              {me.city === c && <motion.span layoutId="fcity" className="fc-on" transition={{ type: 'spring', stiffness: 500, damping: 34 }} />}
+            </motion.button>
+          ))}
+          <button className="f-area" onClick={() => { setAreaOpen(true); touch('where') }}>
+            <Icon n="pin" s={16} />
+            <span>{q.areas.length ? q.areas.map((id) => C.areas.find((a) => a.id === id)?.name).join('، ') : 'همه‌ی نواحی'}</span>
+          </button>
+        </div>
+
+        {/* ۲. چه خدمتی */}
+        <div className="f-step"><i className={touched.what ? 'ok' : ''}>۲</i><b>چه خدمتی؟</b></div>
+        <div className="f-cats" ref={cats}>
+          {CATS.map((c) => (
+            <motion.button key={c.id} className={q.cat === c.id ? 'on' : ''} whileTap={{ scale: 0.9 }} onClick={(e) => { set({ cat: q.cat === c.id ? '' : c.id, sid: '' }); touch('what'); e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }) }}>
+              <span className="fc-orb"><Glyph cat={c.id} s={22} w={1.4} /></span>
+              <b>{c.name}</b>
+            </motion.button>
+          ))}
+        </div>
+        <AnimatePresence>
+          {q.cat && (
+            <motion.div className="f-svcs" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+              <div className="chips">
+                <button className={`chip glass-d ${!q.sid ? 'on' : ''}`} onClick={() => set({ sid: '' })}>همه‌ی {CAT[q.cat].name}</button>
+                {byCat(q.cat).map((s) => <button key={s.id} className={`chip glass-d ${q.sid === s.id ? 'on' : ''}`} onClick={() => set({ sid: s.id })}>{s.name} <small>{fmtDur(s.dur)}</small></button>)}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ۳. کی */}
+        <div className="f-step"><i className={touched.when ? 'ok' : ''}>۳</i><b>کی؟</b></div>
+        <div className="f-days">
+          {days.map((d) => (
+            <button key={d} className={q.date === d ? 'on' : ''} onClick={() => { set({ date: d }); touch('when') }}>
+              <small>{relDay(d) === 'امروز' || relDay(d) === 'فردا' ? relDay(d) : wdShort(d)}</small><b>{dayNum(d)}</b>
+            </button>
+          ))}
+        </div>
+        <div className="f-parts">
+          {DAYPARTS.map((d) => <button key={d.id} className={q.daypart === d.id ? 'on' : ''} onClick={() => { set({ daypart: d.id }); touch('when') }}>{d.icon && <Icon n={d.icon} s={13} />}{d.name}</button>)}
+        </div>
+
+        <motion.button className={`f-cta ${done === 3 ? 'ready' : ''}`} whileTap={{ scale: 0.97 }} onClick={go}>
+          <Icon n="search" s={19} w={2.2} />
+          <span>نمایش <AnimatePresence mode="popLayout"><motion.b key={list.length} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }}>{fa(list.length)}</motion.b></AnimatePresence> سالن آزاد</span>
+        </motion.button>
+      </div>
+      <AreaSheet open={areaOpen} onClose={() => setAreaOpen(false)} areas={q.areas} setAreas={(areas) => set({ areas })} />
+    </section>
+  )
+}
+
+// میان‌برهای زیر کارت جستجو
+export function Shortcuts() {
+  const { updateMe, toast } = useStore()
+  const nav = useNav()
   const shortcut = (s) => {
     haptic(10)
     if (!s.near) return nav.push({ type: 'results', q: { ...BLANK, ...s.q }, title: s.name })
@@ -70,75 +156,13 @@ export default function Book() {
       nav.push({ type: 'results', q: { ...BLANK, areas: [area.id] }, title: `نزدیک شما · ${area.name}` })
     }, () => toast({ icon: '📍', text: 'اجازه‌ی موقعیت داده نشد' }), { timeout: 6000 })
   }
-
   return (
-    <div className="scroll book">
-      <section className="finder">
-        <div className="finder-head">
-          <div className="ring" style={{ '--p': done / 3 }}><span>{done === 3 ? <Icon n="check" s={15} w={2.6} /> : `${fa(done)}/۳`}</span></div>
-          <div><em className="en">Book your moment</em><h1>نوبت زیبایی‌تون رو بگیرید</h1></div>
-        </div>
-
-        <div className="f-step"><i className={q.cat ? 'ok' : ''}>۱</i><b>چه خدمتی می‌خواهید؟</b></div>
-        <div className="f-cats">
-          {CATS.map((c) => (
-            <motion.button key={c.id} className={q.cat === c.id ? 'on' : ''} style={{ '--t': c.tone }} whileTap={{ scale: 0.9 }}
-              onClick={() => { haptic(8); set({ cat: q.cat === c.id ? '' : c.id, sid: '' }) }}>
-              <span className="fc-orb"><Glyph cat={c.id} s={24} w={1.3} /></span>
-              <b>{c.name}</b>
-            </motion.button>
-          ))}
-        </div>
-        <AnimatePresence>
-          {q.cat && (
-            <motion.div className="f-svcs" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-              <div className="chips">
-                <button className={`chip ${!q.sid ? 'on' : ''}`} onClick={() => set({ sid: '' })}>همه‌ی {CAT[q.cat].name}</button>
-                {byCat(q.cat).map((s) => (
-                  <button key={s.id} className={`chip ${q.sid === s.id ? 'on' : ''}`} onClick={() => set({ sid: s.id })}>{s.name} <small>{fmtDur(s.dur)}</small></button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="f-step"><i className="ok">۲</i><b>کجا؟</b></div>
-        <Seg id="city" items={CITY_IDS.map((c) => [c, CITIES[c].name])} value={me.city} onChange={(c) => { updateMe({ city: c, area: null }); set({ areas: [] }) }} />
-        <button className="f-area" onClick={() => setAreaOpen(true)}>
-          <Icon n="map" s={18} />
-          <span>{q.areas.length ? q.areas.map((id) => C.areas.find((a) => a.id === id)?.name).join('، ') : `همه‌ی نواحی ${C.name}`}</span>
-          <small>انتخاب ناحیه</small>
-        </button>
-
-        <div className="f-step"><i className={q.date !== today() || q.daypart ? 'ok' : ''}>۳</i><b>کی؟</b></div>
-        <div className="days">
-          {days.map((d) => (
-            <button key={d} className={q.date === d ? 'on' : ''} onClick={() => set({ date: d })}>
-              <small>{relDay(d) === 'امروز' || relDay(d) === 'فردا' ? relDay(d) : wdShort(d)}</small><b>{dayNum(d)}</b>
-            </button>
-          ))}
-        </div>
-        <div className="parts">
-          {DAYPARTS.map((d) => <button key={d.id} className={q.daypart === d.id ? 'on' : ''} onClick={() => set({ daypart: d.id })}>{d.icon && <Icon n={d.icon} s={14} />}{d.name}</button>)}
-        </div>
-
-        <motion.button className={`cta ${done === 3 ? 'ready' : ''}`} whileTap={{ scale: 0.97 }} onClick={() => go({}, q.sid ? undefined : q.cat ? CAT[q.cat].name : 'همه‌ی سالن‌ها')}>
-          <Icon n="search" s={19} w={2.2} />
-          <span>نمایش <AnimatePresence mode="popLayout"><motion.b key={list.length} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }}>{fa(list.length)}</motion.b></AnimatePresence> سالن</span>
-          {list.length > 0 && list.some((s) => s.price) && <small>از {short(Math.min(...list.filter((s) => s.price).map((s) => s.price)))}</small>}
+    <div className="shortcuts">
+      {SHORTCUTS.map((s, i) => (
+        <motion.button key={s.id} whileTap={{ scale: 0.95 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.03 } }} onClick={() => shortcut(s)}>
+          <span><Icon n={s.icon} s={18} /></span><b>{s.name}</b>
         </motion.button>
-      </section>
-
-      <div className="sec-title"><div><em className="en">Quick picks</em><h2>انتخاب سریع</h2></div></div>
-      <div className="shortcuts">
-        {SHORTCUTS.map((s, i) => (
-          <motion.button key={s.id} whileTap={{ scale: 0.95 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0, transition: { delay: i * 0.03 } }} onClick={() => shortcut(s)}>
-            <span><Icon n={s.icon} s={18} /></span><b>{s.name}</b>
-          </motion.button>
-        ))}
-      </div>
-      <div className="foot-space" />
-      <AreaSheet open={areaOpen} onClose={() => setAreaOpen(false)} areas={q.areas} setAreas={(areas) => set({ areas })} />
+      ))}
     </div>
   )
 }

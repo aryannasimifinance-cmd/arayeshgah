@@ -3,9 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
 import { Avatar, Badge, Empty, Icon, Rating, Seg, Stars } from '../components/ui'
-import { Cover, Glyph, Portrait } from '../components/Art'
+import { Glyph, Portrait } from '../components/Art'
+import { img } from '../lib/photos'
 import { Heart } from '../components/cards'
-import { DistrictMap } from '../components/Maps'
+import { MiniMap } from '../components/Maps'
 import { AMEN, CAT, CRITERIA, SV, fmtDur } from '../lib/catalog'
 import { areaOf } from '../lib/geo'
 import { KINDS, tierLabel } from '../lib/seed'
@@ -59,6 +60,7 @@ export default function Salon({ id }) {
   const nav = useNav()
   const s = db.salons.find((x) => x.id === id)
   const [tab, setTab] = useState('svc')
+  const [ph, setPh] = useState(0)
   const [cart, setCart] = useState([])
   const [cat, setCat] = useState(s.cats[0])
   const area = areaOf(s.city, s.area)
@@ -73,7 +75,10 @@ export default function Salon({ id }) {
   return (
     <div className="scroll salon">
       <div className="hero">
-        <Cover salon={s} ratio={0.78} />
+        <div className="gallery" onScroll={(e) => setPh(Math.round(Math.abs(e.currentTarget.scrollLeft) / e.currentTarget.clientWidth))}>
+          {s.photos.map((p) => <img key={p} src={img(p)} alt="" />)}
+        </div>
+        <div className="gal-dots">{s.photos.map((p, i) => <i key={p} className={i === ph ? 'on' : ''} />)}</div>
         <div className="hero-bar">
           <button className="icon-btn glass" onClick={nav.pop} aria-label="بازگشت"><Icon n="back" s={22} /></button>
           <span />
@@ -138,7 +143,7 @@ export default function Salon({ id }) {
       {tab === 'info' && (
         <section className="pad info">
           <p>{s.about}</p>
-          <div className="mini-map"><DistrictMap city={s.city} salons={[s]} single /></div>
+          <div className="mini-map"><MiniMap at={s.at} /></div>
           <p className="muted"><Icon n="pin" s={14} /> {s.hood}، {area.name} — نشانی دقیق بعد از رزرو ارسال می‌شود.</p>
           <h4>امکانات</h4>
           <div className="amen">{s.amen.length ? s.amen.map((k) => <span key={k}><Icon n={AMEN[k].icon} s={16} /> {AMEN[k].name}</span>) : <span className="muted">—</span>}</div>

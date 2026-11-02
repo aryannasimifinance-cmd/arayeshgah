@@ -78,7 +78,7 @@ export default function Visits() {
       )}
       <div className="pad-x"><Seg id="vtab" items={[['up', `پیش رو (${fa(up.length)})`], ['past', 'گذشته']]} value={tab} onChange={setTab} /></div>
       <div className="pad">
-        {list.length === 0 && <Empty icon="cal" title={tab === 'up' ? 'نوبتی ندارید' : 'هنوز سابقه‌ای نیست'} text="وقتشه یه کم به خودتون برسید ✨"><button className="btn primary" onClick={() => nav.go('book')}>رزرو نوبت</button></Empty>}
+        {list.length === 0 && <Empty icon="cal" title={tab === 'up' ? 'نوبتی ندارید' : 'هنوز سابقه‌ای نیست'} text="وقتشه یه کم به خودتون برسید ✨"><button className="btn primary" onClick={() => nav.go('home')}>رزرو نوبت</button></Empty>}
         {list.map((b) => {
           const s = db.salons.find((x) => x.id === b.salon)
           const a = db.artists.find((x) => x.id === b.artist)

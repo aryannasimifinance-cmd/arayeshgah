@@ -3,7 +3,7 @@ import { useStore } from '../store'
 import { PageHead } from './Shell'
 import { Empty, Icon, Sheet } from '../components/ui'
 import { SalonCard } from '../components/cards'
-import { DistrictMap } from '../components/Maps'
+import { CityMap } from '../components/Maps'
 import { AMEN, CAT, SV } from '../lib/catalog'
 import { CITIES } from '../lib/geo'
 import { KINDS } from '../lib/seed'
@@ -72,7 +72,8 @@ export default function Results({ init, title }) {
         </div>
       ) : (
         <div className="res-map">
-          <DistrictMap city={me.city} salons={list} stats={stats} selected={q.areas} active={active} onSalon={setActive}
+          <CityMap city={me.city} salons={list} stats={stats} selected={q.areas} active={active} onSalon={setActive} pad={{ top: 30, bottom: 220 }}
+            free={new Set(list.filter((s) => s.slots.length).map((s) => s.id))}
             onArea={(id) => set({ areas: q.areas.includes(id) ? q.areas.filter((x) => x !== id) : [...q.areas, id] })} />
           {active && list.find((s) => s.id === active) && <div className="map-card"><SalonCard s={list.find((s) => s.id === active)} /></div>}
         </div>

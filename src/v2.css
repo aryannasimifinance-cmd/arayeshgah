@@ -1,0 +1,190 @@
+/* =================== نسخه‌ی ۲: عکس، صفحه‌ی اول، نقشه =================== */
+/* لایه‌ها: هر صفحه زمینه‌ی خودش؛ نقشه هیچ‌وقت روی تب‌بار و صفحه‌های رویی نمی‌آید */
+.tab-pages { z-index: 0; isolation: isolate; }
+.leaflet-box { position: relative; z-index: 0; isolation: isolate; }
+.tabbar { z-index: 40; }
+
+/* عکس‌ها */
+.cover { position: relative; overflow: hidden; width: 100%; display: block; }
+.cover img, .work img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.work { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.portrait { position: relative; display: inline-block; border-radius: 50%; flex-shrink: 0; background: var(--rose-soft); }
+.portrait img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.portrait > b { position: absolute; inset: 0; display: grid; place-items: center; color: var(--rose-2); }
+.portrait.ring { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--line-2); }
+.portrait.ring.star { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--gold); }
+.portrait > i { position: absolute; bottom: -2px; left: -2px; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: #fff; font-style: normal; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--paper); }
+
+/* ---------- صفحه‌ی اول ---------- */
+.top-r { display: flex; align-items: center; gap: 10px; }
+.top-r small { font-size: 12px; }
+.finder.photo { position: relative; overflow: hidden; margin: 8px 12px 0; padding: 0; border-radius: 32px; background: var(--ink); color: #fff; box-shadow: 0 24px 50px -24px rgba(42, 30, 36, .7); }
+.finder-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.finder-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(42, 30, 36, .28) 0%, rgba(42, 30, 36, .55) 38%, rgba(42, 30, 36, .88) 100%); }
+.finder-in { position: relative; padding: 18px 16px 16px; }
+.finder.photo .finder-head h1 { font-size: 20px; color: #fff; }
+.finder.photo .en { color: var(--gold-2); font-size: 17px; }
+.finder.photo .ring { background: conic-gradient(var(--gold-2) calc(var(--p) * 360deg), rgba(255, 255, 255, .25) 0); }
+.finder.photo .ring span { background: rgba(42, 30, 36, .65); color: var(--gold-2); backdrop-filter: blur(6px); }
+.finder-dots { display: flex; gap: 4px; }
+.finder-dots i { width: 6px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .4); transition: all .4s; }
+.finder-dots i.on { width: 18px; background: #fff; }
+.finder.photo .f-step { margin: 16px 0 8px; }
+.finder.photo .f-step i { background: rgba(255, 255, 255, .2); color: #fff; }
+.finder.photo .f-step i.ok { background: var(--gold-2); color: var(--ink); }
+.finder.photo .f-step b { color: #fff; }
+.f-cities { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 6px; }
+.f-cities > button { position: relative; height: 54px; border-radius: 16px; background: rgba(255, 255, 255, .12); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .22); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; overflow: hidden; }
+.f-cities > button .en { position: relative; z-index: 1; font-size: 12px; color: rgba(255, 255, 255, .7); }
+.f-cities > button b { position: relative; z-index: 1; font-size: 14px; }
+.f-cities > button.on { color: var(--ink); }
+.f-cities > button.on .en { color: var(--gold); }
+.fc-on { position: absolute; inset: 0; background: #fff; }
+.finder.photo .f-area { margin: 0; flex-direction: row; gap: 6px; padding: 0 10px; height: 54px; border-radius: 16px; border: 1px dashed rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .06); color: #fff; font-size: 12px; }
+.finder.photo .f-area span { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.finder.photo .f-cats { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 4px; }
+.finder.photo .f-cats::-webkit-scrollbar { display: none; }
+.finder.photo .f-cats button { flex-shrink: 0; width: 58px; color: #fff; }
+.finder.photo .fc-orb { width: 52px; height: 52px; background: rgba(255, 255, 255, .14); backdrop-filter: blur(10px); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25) inset; color: #fff; }
+.finder.photo .f-cats button.on .fc-orb { background: #fff; color: var(--rose-2); box-shadow: 0 8px 20px -6px rgba(0, 0, 0, .5); transform: translateY(-2px); }
+.finder.photo .f-cats b { font-size: 10.5px; color: rgba(255, 255, 255, .9); }
+.chip.glass-d { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .25); color: #fff; backdrop-filter: blur(8px); }
+.chip.glass-d small { color: rgba(255, 255, 255, .65); }
+.chip.glass-d.on { background: #fff; color: var(--ink); border-color: #fff; }
+.chip.glass-d.on small { color: var(--muted); }
+.f-days { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.f-days::-webkit-scrollbar { display: none; }
+.f-days button { flex-shrink: 0; width: 50px; height: 58px; border-radius: 16px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .2); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.3; }
+.f-days small { font-size: 10px; color: rgba(255, 255, 255, .7); }
+.f-days b { font-size: 16px; }
+.f-days button.on { background: #fff; color: var(--ink); }
+.f-days button.on small { color: var(--rose-2); }
+.f-parts { display: flex; gap: 6px; margin-top: 8px; }
+.f-parts button { flex: 1; height: 34px; border-radius: 12px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .2); font-size: 11.5px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.f-parts button.on { background: var(--gold-2); color: var(--ink); border-color: var(--gold-2); font-weight: 600; }
+.f-cta { margin-top: 16px; width: 100%; height: 56px; border-radius: 18px; background: rgba(255, 255, 255, .88); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; transition: all .3s; }
+.f-cta.ready { background: #fff; box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .6); }
+.f-cta b { display: inline-block; color: var(--rose-2); }
+.home .next-card { margin-top: 14px; }
+.rail.now { gap: 10px; }
+.now-card { position: relative; flex-shrink: 0; width: 230px; height: 158px; border-radius: 22px; overflow: hidden; cursor: pointer; scroll-snap-align: start; }
+.now-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.nw-in { position: absolute; inset: 0; padding: 12px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; background: linear-gradient(transparent 25%, rgba(42, 30, 36, .82)); line-height: 1.4; }
+.nw-in b { font-size: 14px; }
+.nw-in small { font-size: 11px; opacity: .85; }
+.nw-slots { display: flex; gap: 5px; margin-top: 7px; }
+.nw-slots button { height: 28px; padding: 0 10px; border-radius: 9px; background: rgba(255, 255, 255, .92); color: var(--ink); font-weight: 600; font-size: 12px; }
+.nw-slots button:hover { background: var(--gold-2); }
+.cat-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 16px; }
+.cat-tiles button { position: relative; aspect-ratio: 1 / 1.08; border-radius: 18px; overflow: hidden; }
+.cat-tiles button.wide { grid-column: span 2; aspect-ratio: auto; }
+.cat-tiles img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.cat-tiles button:hover img { transform: scale(1.05); }
+.cat-tiles span { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 10px; color: #fff; text-align: right; background: linear-gradient(transparent 40%, rgba(42, 30, 36, .7)); line-height: 1.25; }
+.cat-tiles span .en { font-size: 12px; color: var(--gold-2); }
+.cat-tiles span b { font-size: 13px; }
+.offer-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lb .work, .works-grid .work { position: absolute; inset: 0; }
+.work-view > .work { aspect-ratio: 1; height: auto; margin-top: 10px; }
+
+/* ---------- تب آرتیست‌ها ---------- */
+.artists-tab .chips { margin-top: 4px; }
+.artist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 16px 0; }
+.ag-card { background: var(--card); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-2), 0 0 0 1px var(--line) inset; cursor: pointer; }
+.ag-cover { position: relative; height: 96px; overflow: hidden; }
+.ag-cover img { width: 100%; height: 100%; object-fit: cover; }
+.ag-fol { position: absolute; top: 8px; right: 8px; font-size: 10px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, .85); backdrop-filter: blur(6px); }
+.ag-body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 10px 12px; margin-top: -26px; position: relative; gap: 1px; }
+.ag-body > b { margin-top: 6px; font-size: 13.5px; }
+.ag-where { font-size: 10.5px; margin-top: 2px; }
+.ag-follow { margin-top: 8px; width: 100%; height: 32px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; }
+.ag-follow.on { background: var(--paper-2); color: var(--ink-2); }
+.artist-card .portrait { margin-bottom: 2px; }
+
+/* ---------- سالن و آرتیست ---------- */
+.gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; aspect-ratio: 1 / .82; }
+.gallery::-webkit-scrollbar { display: none; }
+.gallery img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: center; }
+.gal-dots { position: absolute; bottom: 46px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; pointer-events: none; }
+.gal-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .55); transition: all .3s; }
+.gal-dots i.on { width: 18px; background: #fff; }
+.art-banner { height: 170px; margin: -60px 0 -58px; overflow: hidden; }
+.art-banner img { width: 100%; height: 100%; object-fit: cover; }
+.artist .art-top { background: transparent; backdrop-filter: none; position: relative; z-index: 2; }
+.artist .art-top button.icon-btn { background: rgba(255, 255, 255, .8); backdrop-filter: blur(8px); }
+.artist .art-top b { background: rgba(255, 255, 255, .8); padding: 3px 10px; border-radius: 999px; }
+.art-head { background: none; position: relative; }
+.v-cover .cover { aspect-ratio: 2.4 !important; }
+
+/* ---------- نقشه‌ی شهر ---------- */
+.leaflet-tile-pane { filter: none; }
+.citymap { background: #EEEAE6; }
+.citymap .leaflet-tile-pane, .mini-map .leaflet-tile-pane { filter: grayscale(.75) sepia(.28) saturate(.9) brightness(1.07) contrast(.86); opacity: .9; }
+.citymap .leaflet-control-attribution { font-size: 8.5px; opacity: .7; }
+/* برچسب ناحیه: دور = حباب با تعداد، نزدیک = اسم کوچک */
+.alabel-wrap { background: none; border: 0; }
+.alabel { transform: translate(-50%, -50%); display: inline-flex; flex-direction: column; align-items: center; cursor: pointer; font-family: var(--fa); transition: opacity .3s; white-space: nowrap; }
+.alabel b { min-width: 30px; height: 30px; padding: 0 6px; border-radius: 15px; display: grid; place-items: center; font-size: 13px; color: #fff; background: color-mix(in srgb, var(--rose-2) calc(55% + var(--h) * 45%), #E4B8BE); box-shadow: 0 4px 12px -2px rgba(74, 38, 56, .4), 0 0 0 2.5px #fff; position: relative; transition: transform .25s; }
+.alabel i { position: absolute; top: -9px; left: 50%; margin-left: 8px; font-style: normal; font-size: 9.5px; font-weight: 700; background: #fff; color: var(--rose-2); padding: 0 5px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); line-height: 16px; }
+.alabel small { margin-top: 3px; font-size: 10px; color: var(--plum); font-weight: 600; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; }
+.alabel.none b { background: #fff; color: var(--muted); box-shadow: 0 0 0 1px var(--line-2); }
+.alabel.on { opacity: 0; pointer-events: none; }
+.alabel.dim { opacity: .45; }
+.alabel:hover b { transform: scale(1.08); }
+.near .alabel b { min-width: 0; height: auto; padding: 2px 8px; font-size: 11px; background: rgba(255, 255, 255, .92); color: var(--plum); box-shadow: 0 2px 8px rgba(74, 38, 56, .18); }
+.near .alabel i, .near .alabel small { display: none; }
+
+/* پین سالن: عکس گرد + امتیاز */
+.ppin-wrap { background: none; border: 0; }
+.ppin { transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform .2s; animation: pin-in .35s cubic-bezier(.2, .9, .3, 1.3) both; }
+@keyframes pin-in { from { opacity: 0; transform: translate(-50%, -80%) scale(.6); } }
+.pp-ph { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 2.5px solid #fff; box-shadow: 0 6px 14px -4px rgba(42, 30, 36, .55); background: var(--rose-soft); }
+.pp-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ppin b { white-space: nowrap; margin-top: -6px; background: #fff; color: var(--ink); font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 8px; line-height: 16px; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); font-family: var(--fa); position: relative; }
+.ppin.free .pp-ph { box-shadow: 0 0 0 2px var(--ok), 0 6px 14px -4px rgba(42, 30, 36, .55); }
+.ppin-wrap.on .ppin { transform: translate(-50%, -100%) scale(1.35); }
+.ppin-wrap.on .pp-ph { border-color: var(--ink); }
+.ppin-wrap.on .ppin b { background: var(--ink); color: #fff; }
+.ppin-wrap:hover .ppin { transform: translate(-50%, -100%) scale(1.12); }
+.pin-dot { display: block; width: 20px; height: 20px; border-radius: 50%; background: var(--rose-2); border: 4px solid #fff; box-shadow: 0 0 0 6px rgba(169, 99, 109, .2), 0 2px 8px rgba(0, 0, 0, .25); transform: translate(-50%, -50%); }
+
+/* ---------- تب نقشه ---------- */
+.maptab { overflow: hidden; }
+.map-search { padding: 0 6px 0 14px; }
+.ms-x { color: var(--muted); padding: 4px; }
+.ms-city { display: flex; background: var(--paper-2); border-radius: 13px; padding: 3px; flex-shrink: 0; }
+.ms-city button { position: relative; height: 34px; padding: 0 11px; border-radius: 10px; font-size: 12.5px; color: var(--ink-2); }
+.ms-city button.on { color: var(--ink); font-weight: 700; }
+.ms-city button span { position: relative; z-index: 1; }
+.ms-ind { position: absolute; inset: 0; background: #fff; border-radius: 10px; box-shadow: var(--shadow-2); }
+.map-chips .chip svg { flex-shrink: 0; }
+.sg-ph { width: 34px; height: 34px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.sg-ph img { width: 100%; height: 100%; object-fit: cover; }
+.map-ctrl { position: absolute; left: 12px; z-index: 500; display: flex; flex-direction: column; gap: 8px; transition: bottom .35s cubic-bezier(.2, .8, .2, 1); }
+.map-ctrl button { width: 44px; height: 44px; border-radius: 14px; background: rgba(255, 255, 255, .95); backdrop-filter: blur(10px); box-shadow: var(--shadow); display: grid; place-items: center; color: var(--ink); }
+.map-sheet { position: absolute; top: 0; left: 0; right: 0; z-index: 600; background: rgba(251, 247, 243, .97); backdrop-filter: blur(16px); border-radius: 28px 28px 0 0; box-shadow: 0 -10px 40px -12px rgba(74, 38, 56, .3); display: flex; flex-direction: column; will-change: transform; }
+.ms-grab { touch-action: none; cursor: grab; padding: 8px 16px 6px; flex-shrink: 0; user-select: none; }
+.ms-grab:active { cursor: grabbing; }
+.grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: var(--line-2); margin: 0 auto 8px; }
+.ms-head { display: flex; align-items: center; gap: 10px; }
+.ms-head > div { flex: 1; display: flex; flex-direction: column; line-height: 1.45; min-width: 0; }
+.ms-head > div b { font-size: 15px; }
+.ms-head > div small { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-count { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.ms-count em { font-style: normal; color: var(--ok); font-weight: 600; }
+.chip.sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+.map-sheet .mr-cards { padding: 8px 16px 14px; gap: 10px; }
+.mcard { flex-shrink: 0; width: 272px; display: flex; gap: 10px; padding: 8px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow-2), 0 0 0 1px var(--line) inset; scroll-snap-align: center; cursor: pointer; transition: box-shadow .2s; }
+.mcard.on { box-shadow: 0 0 0 2px var(--ink), var(--shadow); }
+.mc-ph { position: relative; width: 92px; height: 112px; border-radius: 14px; overflow: hidden; flex-shrink: 0; }
+.mc-ph img { width: 100%; height: 100%; object-fit: cover; }
+.mc-ph span { position: absolute; top: 6px; right: 6px; background: var(--rose-2); color: #fff; font-size: 10px; font-weight: 700; padding: 0 6px; border-radius: 8px; }
+.mc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.5; padding: 2px 0; }
+.mc-body > b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-body > small { font-size: 11px; }
+.mc-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+.mc-row em { font-style: normal; font-size: 11px; color: var(--ink-2); }
+.mc-slots { display: flex; gap: 4px; margin-top: auto; }
+.mc-slots button { height: 28px; padding: 0 8px; border-radius: 9px; background: var(--rose-soft); color: var(--rose-2); font-weight: 600; font-size: 11.5px; }
+.mc-slots i { font-size: 11px; font-style: normal; }
+.ms-list { flex: 1; height: auto; padding: 6px 16px 0; }

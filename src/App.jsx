@@ -7,7 +7,7 @@ import Shell from './screens/Shell'
 
 // لینک دمو: ‎#demo یا ‎#demo=map (تب دلخواه) با حساب نمونه وارد می‌شود
 const [hashRole, hashTab] = location.hash.slice(1).split('=')
-export const startTab = hashRole === 'demo' && hashTab ? hashTab : 'discover'
+export const startTab = hashRole === 'demo' && hashTab ? hashTab : 'home'
 
 export default function App() {
   const { me, login } = useStore()

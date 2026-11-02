@@ -2,12 +2,11 @@ import { createContext, useCallback, useContext, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { Icon } from '../components/ui'
-import { Mark } from '../components/Logo'
 import { haptic } from '../lib/util'
 import { startTab } from '../App'
 import Discover from './Discover'
 import MapTab from './MapTab'
-import Book from './Book'
+import Artists from './Artists'
 import Visits from './Visits'
 import Me from './Me'
 import Salon from './Salon'
@@ -17,9 +16,9 @@ import Wizard from './Wizard'
 
 // ترتیب تب‌ها از راست؛ رزرو در وسط
 const TABS = [
-  { id: 'discover', name: 'کشف', icon: 'sparkle' },
-  { id: 'map', name: 'نقشه', icon: 'map' },
-  { id: 'book', name: 'رزرو', center: true },
+  { id: 'home', name: 'خانه', icon: 'home' },
+  { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
+  { id: 'map', name: 'نقشه', icon: 'map', center: true },
   { id: 'visits', name: 'نوبت‌ها', icon: 'cal' },
   { id: 'me', name: 'من', icon: 'user' },
 ]
@@ -31,7 +30,7 @@ export default function Shell() {
   const { db, me } = useStore()
   // لینک دمو می‌تواند مستقیم صفحه‌ای را باز کند: ‎#demo=salon.s3 یا ‎#demo=wizard.s3
   const [dt, did] = startTab.split('.')
-  const [tab, setTab] = useState(did ? 'discover' : startTab)
+  const [tab, setTab] = useState(did ? 'home' : startTab)
   const [stack, setStack] = useState(did && dt !== 'wizard' ? [{ type: dt, id: did, k: 1 }] : [])
   const [wiz, setWiz] = useState(dt === 'wizard' ? { salon: did, svc: [] } : null)
 
@@ -50,9 +49,9 @@ export default function Shell() {
     <Nav.Provider value={{ push, pop, book, go, tab }}>
       <div className="shell">
         <div className="tab-pages">
-          {tab === 'discover' && <Discover />}
+          {tab === 'home' && <Discover />}
+          {tab === 'artists' && <Artists />}
           {tab === 'map' && <MapTab />}
-          {tab === 'book' && <Book />}
           {tab === 'visits' && <Visits />}
           {tab === 'me' && <Me />}
         </div>
@@ -69,7 +68,7 @@ export default function Shell() {
           {TABS.map((t) => (
             <button key={t.id} className={`${tab === t.id && !top ? 'on' : ''} ${t.center ? 'center' : ''}`} onClick={() => { haptic(); go(t.id) }}>
               <span className="tab-ico">
-                {t.center ? <Mark size={30} color="currentColor" accent="var(--gold-2)" /> : <Icon n={t.icon} s={22} w={tab === t.id ? 2 : 1.6} />}
+                <Icon n={t.icon} s={t.center ? 24 : 22} w={tab === t.id || t.center ? 2 : 1.6} />
                 {badge[t.id] > 0 && <i className="dot">{badge[t.id].toLocaleString('fa-IR')}</i>}
               </span>
               <span>{t.name}</span>

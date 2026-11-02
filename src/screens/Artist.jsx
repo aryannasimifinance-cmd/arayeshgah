@@ -8,6 +8,7 @@ import { CAT, SV, byCat, fmtDur } from '../lib/catalog'
 import { areaOf } from '../lib/geo'
 import { priceOf } from '../lib/seed'
 import { fa, haptic, short } from '../lib/util'
+import { img } from '../lib/photos'
 import { ReviewItem, ScoreSummary } from './Salon'
 
 const k = (n) => (n >= 1000 ? `${(n / 1000).toLocaleString('fa-IR', { maximumFractionDigits: 1 })}K` : n.toLocaleString('fa-IR'))
@@ -33,6 +34,7 @@ export default function Artist({ id }) {
         <b dir="ltr">@{a.handle}</b>
         <span className="icon-btn" />
       </div>
+      <div className="art-banner"><img src={img(a.works[1]?.ph || a.works[0].ph)} alt="" /></div>
       <section className="art-head">
         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}><Portrait a={a} size={104} /></motion.div>
         <h1>{a.name}</h1>

@@ -100,3 +100,17 @@ export function areaShapes(city) {
   }))
   return cache[city]
 }
+
+// مرکز هندسی هر ناحیه برای برچسب و حباب تعداد
+export function areaCenters(city) {
+  const shapes = areaShapes(city)
+  return Object.fromEntries(Object.entries(shapes).map(([id, pts]) => {
+    let a = 0, x = 0, y = 0
+    pts.forEach((p, i) => {
+      const q = pts[(i + 1) % pts.length]
+      const f = p[0] * q[1] - q[0] * p[1]
+      a += f; x += (p[0] + q[0]) * f; y += (p[1] + q[1]) * f
+    })
+    return [id, a ? [x / (3 * a), y / (3 * a)] : CITIES[city].areas.find((z) => z.id === id).at]
+  }))
+}
