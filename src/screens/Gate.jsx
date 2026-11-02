@@ -4,12 +4,14 @@ import { useStore, DEMO_PASS, demoAccounts } from '../store'
 import { Icon } from '../components/ui'
 import { Logo, Mark } from '../components/Logo'
 import { CITIES, CITY_IDS } from '../lib/geo'
+import { CATS } from '../lib/catalog'
 import { PH, img } from '../lib/photos'
 import { fa, haptic } from '../lib/util'
 
 const toEn = (s) => s.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
 const slide = { initial: { opacity: 0, x: -24 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: 24 }, transition: { duration: 0.22 } }
 const SIGNUP = ['موبایل', 'کد تأیید', 'حساب', 'شهر']
+const SIGNUP_ARTIST = ['موبایل', 'کد تأیید', 'حساب', 'کار من', 'شهر']
 
 // پیامک شبیه‌سازی‌شده: کد واقعاً ساخته و در اعلان بالای صفحه نشان داده می‌شود
 function useSms() {
@@ -116,13 +118,16 @@ function Login({ go }) {
 
 // ---------- ثبت‌نام (چهار قدم) ----------
 function Signup({ go }) {
-  const { signUp, accountExists } = useStore()
+  const { db, signUp, accountExists } = useStore()
   const sms = useSms()
   const [step, setStep] = useState(0)
   const [phone, setPhone] = useState('')
   const [code, setCode] = useState('')
   const [bad, setBad] = useState(false)
-  const [f, setF] = useState({ name: '', username: '', pass: '', city: 'tehran', area: null })
+  const [f, setF] = useState({ kind: 'customer', name: '', username: '', pass: '', city: 'tehran', area: null, cats: [], salon: '', years: 2, bio: '' })
+  const artist = f.kind === 'artist'
+  const STEPS = artist ? SIGNUP_ARTIST : SIGNUP
+  const cityStep = artist ? 4 : 3
   const set = (p) => setF((x) => ({ ...x, ...p }))
   const P = toEn(phone)
   const okPhone = /^09\d{9}$/.test(P)
@@ -141,13 +146,18 @@ function Signup({ go }) {
       <SmsBanner sms={sms} onFill={setCode} />
       <div className="wiz-top">
         <button className="icon-btn" onClick={back} aria-label="بازگشت"><Icon n="back" s={22} /></button>
-        <div className="wiz-steps">{SIGNUP.map((s, i) => <span key={s} className={i <= step ? 'on' : ''}><i /><small>{s}</small></span>)}</div>
+        <div className="wiz-steps">{STEPS.map((s, i) => <span key={s} className={i <= step ? 'on' : ''}><i /><small>{s}</small></span>)}</div>
       </div>
       <AnimatePresence mode="wait">
         <motion.div key={step} className="wiz-body" {...slide}>
           {step === 0 && <>
             <em className="en">Create account</em>
             <h1>ثبت‌نام در بیوتی‌ست</h1>
+            <div className="kind-pick">
+              {[['customer', 'مشتری هستم', 'نوبت می‌گیرم و خرید می‌کنم'], ['artist', 'آرتیست هستم', 'پیج و پنل نوبت‌های خودم را می‌خواهم']].map(([k, n, d]) => (
+                <button key={k} className={f.kind === k ? 'on' : ''} onClick={() => set({ kind: k })}><b>{n}</b><small>{d}</small></button>
+              ))}
+            </div>
             <p className="muted">شماره موبایل‌تون رو وارد کنید؛ یک کد تأیید پیامک می‌شه.</p>
             <Field label="شماره موبایل" error={phoneTaken ? 'این شماره قبلاً ثبت‌نام کرده؛ وارد شوید.' : ''}>
               <input className="in big" dir="ltr" inputMode="numeric" maxLength={11} placeholder="09xx xxx xxxx" value={phone} onChange={(e) => setPhone(e.target.value.replace(/[^\d۰-۹]/g, ''))} autoFocus />
@@ -166,13 +176,30 @@ function Signup({ go }) {
             <em className="en">Your account</em>
             <h1>اطلاعات حساب</h1>
             <Field label="نام و نام خانوادگی"><input className="in" value={f.name} onChange={(e) => set({ name: e.target.value })} placeholder="مثلاً نگار کاظمی" autoFocus /></Field>
-            <Field label="نام کاربری (انگلیسی)" error={f.username && !userOk ? 'فقط حروف انگلیسی، عدد، نقطه یا _ (۳ تا ۲۰ حرف)' : userTaken ? 'این نام کاربری گرفته شده' : ''}>
+            <Field label={artist ? 'آیدی پیج شما (انگلیسی)' : 'نام کاربری (انگلیسی)'} error={f.username && !userOk ? 'فقط حروف انگلیسی، عدد، نقطه یا _ (۳ تا ۲۰ حرف)' : userTaken ? 'این نام کاربری گرفته شده' : ''}>
               <input className="in" dir="ltr" value={f.username} onChange={(e) => set({ username: e.target.value.trim().toLowerCase() })} placeholder="negar.k" />
             </Field>
             <Field label="رمز عبور (حداقل ۴ رقم یا حرف)"><input className="in" dir="ltr" type="password" value={f.pass} onChange={(e) => set({ pass: e.target.value })} placeholder="••••" /></Field>
             <button className="btn primary block lg" disabled={f.name.trim().length < 2 || !userOk || userTaken || !passOk} onClick={() => setStep(3)}>ادامه</button>
           </>}
-          {step === 3 && <>
+          {artist && step === 3 && <>
+            <em className="en">Your craft</em>
+            <h1>کار شما</h1>
+            <p className="muted small">این اطلاعات روی پیج عمومی‌تان نشان داده می‌شود و بعداً از پنل قابل ویرایش است.</p>
+            <h4>تخصص‌ها (حداکثر ۳)</h4>
+            <div className="chips wrap small-chips">{CATS.map((c) => <button key={c.id} className={`chip ${f.cats.includes(c.id) ? 'on' : ''}`} onClick={() => set({ cats: f.cats.includes(c.id) ? f.cats.filter((x) => x !== c.id) : [...f.cats, c.id].slice(-3) })}>{c.name}</button>)}</div>
+            <div className="seg">{CITY_IDS.map((c) => <button key={c} className={f.city === c ? 'on' : ''} onClick={() => set({ city: c, salon: '' })}>{f.city === c && <span className="seg-ind" />}<span>{CITIES[c].name}</span></button>)}</div>
+            <Field label="کجا کار می‌کنید؟">
+              <select className="in" value={f.salon} onChange={(e) => set({ salon: e.target.value })}>
+                <option value="">آزادکار · خدمات در منزل</option>
+                {db.salons.filter((x) => x.city === f.city).map((x) => <option key={x.id} value={x.id}>{x.name} · {x.hood}</option>)}
+              </select>
+            </Field>
+            <Field label="سابقه (سال)"><input className="in" type="number" min="0" max="40" value={f.years} onChange={(e) => set({ years: e.target.value })} /></Field>
+            <Field label="معرفی کوتاه"><input className="in" value={f.bio} onChange={(e) => set({ bio: e.target.value })} placeholder="مثلاً: بالیاژ طبیعی و رنگ‌های سرد" /></Field>
+            <button className="btn primary block lg" disabled={!f.cats.length} onClick={() => setStep(4)}>ادامه</button>
+          </>}
+          {step === cityStep && <>
             <em className="en">Almost there</em>
             <h1>کجا زندگی می‌کنید؟</h1>
             <p className="muted">سالن‌های نزدیک شما اول نشان داده می‌شوند.</p>
@@ -182,7 +209,7 @@ function Signup({ go }) {
             <div className="chips wrap small-chips">
               {CITIES[f.city].areas.map((a) => <button key={a.id} className={`chip ${f.area === a.id ? 'on' : ''}`} onClick={() => set({ area: f.area === a.id ? null : a.id })}>{a.name} · {a.hoods[0]}</button>)}
             </div>
-            <button className="btn primary block lg" onClick={() => signUp({ ...f, name: f.name.trim(), pass: toEn(f.pass), phone: P })}>ساختن حساب و ورود</button>
+            <button className="btn primary block lg" onClick={() => signUp({ ...f, name: f.name.trim(), pass: toEn(f.pass), phone: P })}>{artist ? 'ساختن پیج و ورود به پنل' : 'ساختن حساب و ورود'}</button>
           </>}
         </motion.div>
       </AnimatePresence>

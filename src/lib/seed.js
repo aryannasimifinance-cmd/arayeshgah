@@ -248,3 +248,15 @@ export function freeStarts(salon, artist, date, dur, bookings, from = 0, to = 24
 }
 export const canDo = (artist, sids) => sids.every((sid) => artist.cats.includes(SV[sid].cat))
 export const ALL_SERVICES = SERVICES
+
+// آرتیستی که خودش در اپ ثبت‌نام کرده
+export function newArtist({ name, username, cats, salon, city, area, years, bio, hue }) {
+  const r = rng(Date.now() % 1e9)
+  const main = cats[0]
+  return {
+    id: `a${Date.now().toString(36)}`, name: name.trim(), handle: username, salon: salon || null, city, area: area || CITIES[city].areas[0].id,
+    cats, signature: byCat(main)[0].id, rating: 5, reviewsN: 0, followers: 0, years: +years || 1, badge: 'rising', mul: 1, hue, home: !salon,
+    seed: Math.floor(r() * 1e6), bio: bio?.trim() || 'تازه به بیوتی‌ست آمده‌ام؛ خوشحال می‌شوم میزبان شما باشم.', joinedApp: true,
+    works: cats.flatMap((c) => PH[c].slice(0, 3).map((ph, i) => ({ cat: c, title: WORKS[c][i % WORKS[c].length], seed: i, likes: 0, ph }))).slice(0, 6),
+  }
+}

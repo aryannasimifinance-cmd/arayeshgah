@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useStore } from '../../store'
 import { Avatar, Badge, Empty, Icon, Rating, Sheet } from '../../components/ui'
 import { Portrait } from '../../components/Art'
-import { SV, fmtDur } from '../../lib/catalog'
+import { CATS, SV, fmtDur } from '../../lib/catalog'
 import { SOURCE_NAME, agenda, clientBook, favSvc, venueOf } from '../../lib/agenda'
 import { img } from '../../lib/photos'
 import { addDays, dateLong, dateShort, dayNum, fa, haptic, hh, relDay, short, today, toman, wdShort } from '../../lib/util'
@@ -20,7 +20,8 @@ const svcName = (a) => a.svc.map((s) => SV[s].name).join(' + ')
 
 // پنل آرتیست: نوبت‌ها، تقویم، مشتری‌ها و درآمد
 export default function ArtistApp({ id }) {
-  const { db, logout } = useStore()
+  const { db, logout, switchTo } = useStore()
+  const [edit, setEdit] = useState(false)
   const a = db.artists.find((x) => x.id === id)
   const [tab, setTab] = useState('today')
   const [appt, setAppt] = useState(null)
@@ -200,7 +201,8 @@ function Clients({ a, onClient }) {
 
 // ---------- درآمد و پروفایل ----------
 function Me({ a }) {
-  const { db, logout } = useStore()
+  const { db, logout, switchTo } = useStore()
+  const [edit, setEdit] = useState(false)
   const days = useMemo(() => Array.from({ length: 14 }, (_, i) => {
     const d = addDays(today(), i - 13)
     return { d, v: agenda(db, a, d).list.reduce((s, x) => s + x.price, 0) }
@@ -217,6 +219,10 @@ function Me({ a }) {
         <Portrait a={a} size={78} />
         <h1>{a.name}</h1>
         <small className="handle" dir="ltr">@{a.handle}</small>
+        <div className="pro-acts">
+          <button className="btn ghost sm" onClick={() => setEdit(true)}><Icon n="edit" s={14} /> ویرایش پیج</button>
+          <button className="btn primary sm" onClick={() => switchTo('customer', a.name)}><Icon n="user" s={14} /> رزرو برای خودم</button>
+        </div>
         <div className="art-badges"><Badge a={a} /></div>
         <div className="pro-stats inline">
           <span><b>{fa(a.rating.toFixed(1))}</b><small>امتیاز</small></span>
@@ -237,8 +243,37 @@ function Me({ a }) {
       <div className="sec-title"><div><em className="en">Reviews</em><h2>نظر مشتری‌ها</h2></div><Rating v={a.rating} n={a.reviewsN} /></div>
       <div className="pad-x">{reviews.length ? reviews.map((r) => <ReviewItem key={r.id} r={r} showArtist={false} />) : <p className="muted">هنوز نظر مکتوبی نیست.</p>}</div>
       <div className="pad"><button className="btn ghost block" onClick={logout}><Icon n="logout" s={16} /> خروج</button></div>
+      <EditProfile a={a} open={edit} onClose={() => setEdit(false)} />
       <div className="foot-space" />
     </div>
+  )
+}
+
+// ---------- ویرایش پیج عمومی آرتیست ----------
+function EditProfile({ a, open, onClose }) {
+  const { db, updateArtist, toast } = useStore()
+  const [f, setF] = useState(null)
+  const v = f || { name: a.name, handle: a.handle, bio: a.bio, years: a.years, cats: a.cats, home: a.home, mul: a.mul }
+  const set = (p) => setF({ ...v, ...p })
+  const handleOk = /^[a-z0-9._]{3,24}$/.test(v.handle)
+  const taken = v.handle !== a.handle && db.artists.some((x) => x.handle === v.handle)
+  return (
+    <Sheet open={open} onClose={() => { setF(null); onClose() }} title="ویرایش پیج">
+      <div className="pad edit-form">
+        <label>نام نمایشی<input className="in" value={v.name} onChange={(e) => set({ name: e.target.value })} /></label>
+        <label>آیدی پیج<input className="in handle-in" dir="ltr" value={v.handle} onChange={(e) => set({ handle: e.target.value.trim().toLowerCase() })} />
+          {(!handleOk || taken) && <small className="f-err">{taken ? 'این آیدی گرفته شده' : 'فقط حروف انگلیسی، عدد، نقطه یا _'}</small>}</label>
+        <label>معرفی<textarea rows={3} value={v.bio} onChange={(e) => set({ bio: e.target.value })} /></label>
+        <label>سابقه (سال)<input className="in" type="number" min="0" value={v.years} onChange={(e) => set({ years: +e.target.value })} /></label>
+        <span className="lbl">تخصص‌ها</span>
+        <div className="chips wrap">{CATS.map((c) => <button key={c.id} className={`chip ${v.cats.includes(c.id) ? 'on' : ''}`} onClick={() => set({ cats: v.cats.includes(c.id) ? v.cats.filter((x) => x !== c.id) : [...v.cats, c.id].slice(-3) })}>{c.name}</button>)}</div>
+        <label className="switch-row"><span>خدمات در منزل هم می‌دهم</span><input type="checkbox" checked={v.home} onChange={(e) => set({ home: e.target.checked })} /></label>
+        {a.salon
+          ? <p className="muted small">قیمت خدمات شما را مدیر سالن تعیین می‌کند.</p>
+          : <label>سطح قیمت شما (نسبت به قیمت پایه)<select className="in" value={Math.round(v.mul * 10) / 10} onChange={(e) => set({ mul: +e.target.value })}>{[0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5].map((m) => <option key={m} value={m}>{m === 1 ? 'قیمت پایه' : `${m > 1 ? '+' : '−'}٪${fa(Math.round(Math.abs(m - 1) * 100))}`}</option>)}</select></label>}
+        <button className="btn primary block" disabled={!v.name.trim() || !handleOk || taken || !v.cats.length} onClick={() => { updateArtist(a.id, { ...v, name: v.name.trim() }); toast({ icon: '✓', text: 'پیج شما به‌روز شد' }); setF(null); onClose() }}>ذخیره</button>
+      </div>
+    </Sheet>
   )
 }
 

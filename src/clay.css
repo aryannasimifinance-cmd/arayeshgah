@@ -2,19 +2,20 @@
 /* همه‌ی قانون‌ها زیر data-theme="clay" هستند؛ با «کلاسیک» همه‌چیز به حالت قبل برمی‌گردد */
 
 :root[data-theme="clay"] {
-  --paper: #F7F3EF; --paper-2: #EFE9E3; --card: #FFFFFF;
-  --ink: #151312; --ink-2: #5E5853; --muted: #A29B95;
-  --line: #EEE8E2; --line-2: #E2DAD2;
-  --rose: #F06A55; --rose-2: #E8533D; --rose-soft: #FDECE8;
-  --gold: #E8533D; --gold-2: #F4B5A8; --gold-soft: #F3EDE7;
-  --plum: #151312; --ok: #4E8A55;
-  --sand: #E8DCCF; --coral: #EE5A43;
+  /* پالت صورتی پودری: زمینه‌ی صورتی‌کرم، تأکید رز گلبهی، مشکی گرم */
+  --paper: #FBF5F4; --paper-2: #F5EAEA; --card: #FFFFFF;
+  --ink: #1C1416; --ink-2: #66575B; --muted: #A9979C;
+  --line: #F1E5E6; --line-2: #E8D6D9;
+  --rose: #E9809A; --rose-2: #D9577A; --rose-soft: #FCE9EF;
+  --gold: #D9577A; --gold-2: #F4B8C8; --gold-soft: #F8EDEF;
+  --plum: #1C1416; --ok: #4E8A55;
+  --sand: #F7DEE4; --coral: #DD5A7E;
   --r: 24px;
-  --shadow: 0 24px 48px -28px rgba(30, 22, 16, .22);
-  --shadow-2: 0 2px 14px rgba(30, 22, 16, .05);
+  --shadow: 0 24px 48px -28px rgba(120, 40, 70, .22);
+  --shadow-2: 0 2px 14px rgba(120, 40, 70, .06);
   --en: 'Manrope', 'IRANSansX', sans-serif;
 }
-[data-theme="clay"] body { background: #F2EDE8; }
+[data-theme="clay"] body { background: #F6ECEC; }
 [data-theme="clay"] h1, [data-theme="clay"] h2 { letter-spacing: -.4px; }
 
 /* برچسب‌های انگلیسی: بی‌سریف کوچک و فاصله‌دار به‌جای ایتالیک */
@@ -23,8 +24,8 @@
 [data-theme="clay"] .logo-txt i { font-family: var(--en); font-weight: 800; letter-spacing: .3em; color: var(--coral); }
 
 /* قاب */
-[data-theme="clay"] .stage { background: #F2EDE8; }
-[data-theme="clay"] .phone { background: var(--paper); box-shadow: 0 50px 90px -40px rgba(30, 22, 16, .35), 0 0 0 9px #fff, 0 0 0 10px #E6DFD8; }
+[data-theme="clay"] .stage { background: radial-gradient(800px 500px at 85% 15%, #FBE1E8 0%, transparent 60%), #F6ECEC; }
+[data-theme="clay"] .phone { background: var(--paper); box-shadow: 0 50px 90px -40px rgba(120, 40, 70, .35), 0 0 0 9px #fff, 0 0 0 10px #EED9DD; }
 
 /* سطح‌ها: بدون خط دور، سفید با سایه‌ی خیلی نرم و گوشه‌ی گردتر */
 [data-theme="clay"] :is(.sc-row, .svc, .team-row, .pro-row, .pay, .shortcuts button, .search-in, .artist-card, .ag-card, .top-artist, .vrow, .pcard, .svc-pick, .note-row, .set-row, .score-sum, .slotcal, .tl-card, .appt-row, .cal-sum, .pro-stats span, .earn-top, .mini-bars, .client-list button, .mcard, .search-fake, .panel, .kpi, .day-strip button, .days button, .amen span, .salon-card, .chip, .seg, .cart-btn, .receipt) {
@@ -46,11 +47,11 @@
 [data-theme="clay"] .tier { color: var(--ink-2); font-family: var(--en); }
 
 /* نوار پایین: قرص شیشه‌ای شناور، تب فعال قرص خاکستری روشن (مثل اینستاگرام) */
-[data-theme="clay"] .tabbar { bottom: 14px; left: 14px; right: 14px; height: 64px; border-radius: 34px; background: rgba(255, 255, 255, .72); backdrop-filter: blur(22px) saturate(1.4); box-shadow: 0 14px 36px -12px rgba(30, 22, 16, .22), 0 0 0 1px rgba(255, 255, 255, .9) inset; }
-[data-theme="clay"] .tab-pill { inset: 8px 3px; border-radius: 22px; background: #ECE8E4; }
-[data-theme="clay"] .tabbar button.on:not(.center) { color: var(--ink); }
+[data-theme="clay"] .tabbar { bottom: 14px; left: 14px; right: 14px; height: 64px; border-radius: 34px; background: rgba(255, 255, 255, .72); backdrop-filter: blur(22px) saturate(1.4); box-shadow: 0 14px 36px -12px rgba(120, 40, 70, .22), 0 0 0 1px rgba(255, 255, 255, .9) inset; }
+[data-theme="clay"] .tab-pill { inset: 8px 3px; border-radius: 22px; background: #F7E3E8; }
+[data-theme="clay"] .tabbar button.on:not(.center) { color: var(--coral); }
 [data-theme="clay"] .tabbar button { color: #8E8781; }
-[data-theme="clay"] .tabbar .center .tab-ico { width: 46px; height: 46px; margin-top: 0; border-radius: 50%; background: var(--coral) !important; color: #fff; box-shadow: 0 8px 18px -6px rgba(238, 90, 67, .6); }
+[data-theme="clay"] .tabbar .center .tab-ico { width: 46px; height: 46px; margin-top: 0; border-radius: 50%; background: var(--coral) !important; color: #fff; box-shadow: 0 8px 18px -6px rgba(221, 90, 126, .6); }
 [data-theme="clay"] .tabbar .center .tab-name { display: none; }
 [data-theme="clay"] .center-dot { display: none; }
 [data-theme="clay"] .tab-ico .dot { background: var(--coral); }
@@ -61,7 +62,7 @@
 [data-theme="clay"] .sec-title { padding-top: 30px; }
 [data-theme="clay"] .sec-title button { color: var(--ink); font-weight: 700; }
 [data-theme="clay"] .search-head { background: var(--paper); }
-[data-theme="clay"] .mode-seg { background: #ECE8E4; }
+[data-theme="clay"] .mode-seg { background: #F5E6E9; }
 
 /* کارت جستجو: روشن، بدون عکس تیره؛ عکس‌ها فقط در کارت شهرها */
 [data-theme="clay"] .finder.cs { background: var(--card); color: var(--ink); box-shadow: var(--shadow); border-radius: 34px; }
@@ -90,7 +91,7 @@
 [data-theme="clay"] .f-areas-rail button.on { background: var(--ink); color: #fff; }
 [data-theme="clay"] .f-areas-rail button.on small { color: rgba(255, 255, 255, .7); }
 [data-theme="clay"] .f-cats5 button { background: var(--paper-2); border: 0; color: var(--ink); }
-[data-theme="clay"] .f-cats5 button.on { background: var(--coral); color: #fff; box-shadow: 0 8px 16px -8px rgba(238, 90, 67, .7); }
+[data-theme="clay"] .f-cats5 button.on { background: var(--coral); color: #fff; box-shadow: 0 8px 16px -8px rgba(221, 90, 126, .7); }
 [data-theme="clay"] .chip.glass-d { background: var(--paper-2); color: var(--ink); border: 0; }
 [data-theme="clay"] .chip.glass-d small { color: var(--muted); }
 [data-theme="clay"] .chip.glass-d.on { background: var(--ink); color: #fff; }
@@ -125,7 +126,7 @@
 [data-theme="clay"] .done-mark { background: var(--coral); color: #fff; box-shadow: 0 0 0 12px var(--rose-soft); }
 [data-theme="clay"] .done { background: var(--paper); }
 [data-theme="clay"] .manifest, [data-theme="clay"] .sell-cta, [data-theme="clay"] .explain { background: var(--sand); color: var(--ink); }
-[data-theme="clay"] .feed-cta > div { background: linear-gradient(90deg, rgba(247, 243, 239, 0), rgba(247, 243, 239, .92) 70%); color: var(--ink); }
+[data-theme="clay"] .feed-cta > div { background: linear-gradient(90deg, rgba(251, 245, 244, 0), rgba(251, 245, 244, .92) 70%); color: var(--ink); }
 [data-theme="clay"] .feed-cta .fc-go { background: var(--ink); color: #fff; }
 [data-theme="clay"] .feed-cta .logo { color: var(--ink); }
 
@@ -145,10 +146,12 @@
 /* صفحه‌ی سالن و ویزارد */
 [data-theme="clay"] .salon-head { border-radius: 30px; box-shadow: var(--shadow); }
 [data-theme="clay"] .offer-strip { background: var(--rose-soft); color: var(--coral); }
-[data-theme="clay"] .book-bar { background: rgba(255, 255, 255, .85); backdrop-filter: blur(18px); border-top: 0; box-shadow: 0 -10px 30px -18px rgba(30, 22, 16, .25); }
-[data-theme="clay"] .hg.free { background: #EEF5EC; }
+[data-theme="clay"] .book-bar { background: rgba(255, 255, 255, .85); backdrop-filter: blur(18px); border-top: 0; box-shadow: 0 -10px 30px -18px rgba(120, 40, 70, .25); }
+[data-theme="clay"] .hg.free { background: #FCE9EF; color: var(--coral); }
+[data-theme="clay"] .hg.free:hover { background: #F8D6E0; }
+[data-theme="clay"] .hg-legend i.free { background: #FCE9EF; }
 [data-theme="clay"] .wz-steps span.on i { background: var(--coral); }
-[data-theme="clay"] .wz-foot { border-top: 0; box-shadow: 0 -10px 30px -18px rgba(30, 22, 16, .25); }
+[data-theme="clay"] .wz-foot { border-top: 0; box-shadow: 0 -10px 30px -18px rgba(120, 40, 70, .25); }
 [data-theme="clay"] .rc-dep { background: var(--rose-soft); color: var(--coral); }
 [data-theme="clay"] .assigned { background: var(--paper-2); }
 [data-theme="clay"] .any-ico { background: var(--rose-soft); color: var(--coral); }
@@ -156,8 +159,8 @@
 
 /* نقشه */
 [data-theme="clay"] .citymap .leaflet-tile-pane, [data-theme="clay"] .mini-map .leaflet-tile-pane { filter: grayscale(1) brightness(1.08) contrast(.82); opacity: .85; }
-[data-theme="clay"] .map-sheet { background: rgba(247, 243, 239, .96); }
-[data-theme="clay"] .map-search, [data-theme="clay"] .map-ctrl button { box-shadow: 0 10px 30px -14px rgba(30, 22, 16, .3); }
+[data-theme="clay"] .map-sheet { background: rgba(251, 245, 244, .96); }
+[data-theme="clay"] .map-search, [data-theme="clay"] .map-ctrl button { box-shadow: 0 10px 30px -14px rgba(120, 40, 70, .3); }
 [data-theme="clay"] .chip.glass { box-shadow: var(--shadow-2); }
 
 /* پنل آرتیست */
@@ -175,7 +178,7 @@
 [data-theme="clay"] .dash-side nav i { background: var(--coral); }
 [data-theme="clay"] .ds-out { color: var(--muted); }
 [data-theme="clay"] .own-ico { background: var(--coral); color: #fff; }
-[data-theme="clay"] .dash-head { background: rgba(247, 243, 239, .9); border-bottom: 0; }
+[data-theme="clay"] .dash-head { background: rgba(251, 245, 244, .9); border-bottom: 0; }
 [data-theme="clay"] .kpi.hl { background: var(--ink); }
 [data-theme="clay"] .kpi.hl > div svg { color: var(--coral); }
 [data-theme="clay"] .bars i { background: var(--sand); }
@@ -186,3 +189,10 @@
 [data-theme="clay"] .tbl tbody tr:hover { background: var(--paper); }
 [data-theme="clay"] .theme-toggle { background: var(--card); }
 [data-theme="clay"] .dash-side .theme-toggle { margin: 0 6px; background: var(--paper); box-shadow: none; }
+
+/* بنر، پاپ‌آپ تأیید و دکمه‌ی خرید در ظاهر جدید */
+[data-theme="clay"] .confirm-box { border-radius: 30px; }
+[data-theme="clay"] .cf-ico { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .btn.primary.buy { background: var(--coral); box-shadow: 0 10px 22px -10px rgba(221, 90, 126, .8); }
+[data-theme="clay"] .kind-pick button.on { box-shadow: 0 0 0 2px var(--coral); }
+[data-theme="clay"] .kind-pick button.on b { color: var(--coral); }

@@ -71,7 +71,7 @@ export default function Shell() {
           ))}
         </AnimatePresence>
         {/* تب فعال یک قرص رنگی دارد که بین تب‌ها می‌لغزد تا معلوم باشد کجا هستیم */}
-        <nav className="tabbar">
+        <nav className={`tabbar ${top && ['salon', 'artist', 'cart', 'shop'].includes(top.type) ? 'hide' : ''}`}>
           {TABS.map((t) => {
             const on = tab === t.id
             return (

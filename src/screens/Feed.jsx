@@ -4,10 +4,12 @@ import { useNav } from './Shell'
 import { Logo } from '../components/Logo'
 import { Avatar, Icon } from '../components/ui'
 import { ArtistCard, SalonCard } from '../components/cards'
-import { CAT } from '../lib/catalog'
+import { CAT, CATS, SV, byCat, fmtDur } from '../lib/catalog'
+import { Glyph } from '../components/Art'
 import { img } from '../lib/photos'
 import { BLANK, useSearch } from '../lib/search'
-import { fa, haptic, hh } from '../lib/util'
+import { fa, haptic, hh, short, today } from '../lib/util'
+import { useState } from 'react'
 
 const greet = () => { const h = new Date().getHours(); return h < 12 ? 'صبح بخیر' : h < 17 ? 'روز بخیر' : 'عصر بخیر' }
 
@@ -16,7 +18,11 @@ export default function Feed() {
   const { db, me } = useStore()
   const nav = useNav()
   const salons = db.salons.filter((s) => s.city === me.city)
-  const now = useSearch({ ...BLANK, freeOnly: true, sort: 'soon' }).list
+  const [fc, setFc] = useState('hair')
+  const [fs, setFs] = useState('')
+  // آزاد امروز برای یک خدمت مشخص: ساعت‌ها با مدت همان خدمت حساب می‌شوند
+  const sid = fs || byCat(fc)[0].id
+  const now = useSearch({ ...BLANK, freeOnly: true, sort: 'soon', cat: fc, sid }).list
     .sort((a, b) => (b.area === me.area) - (a.area === me.area) || a.slots[0] - b.slots[0]).slice(0, 8)
   const stars = db.artists.filter((a) => a.city === me.city && a.badge === 'star').sort((a, b) => b.followers - a.followers).slice(0, 10)
   const offers = salons.filter((s) => s.offer).slice(0, 6)
@@ -34,8 +40,11 @@ export default function Feed() {
         <div><Logo size={15} light en={false} /><b>نوبت زیبایی‌تون رو پیدا کنید</b><span className="fc-go"><Icon n="search" s={15} /> جستجو و نقشه</span></div>
       </motion.button>
 
+      <div className="sec-title"><div><em className="en">Free today</em><h2>همین امروز نوبت دارند</h2></div><button onClick={() => results({ freeOnly: true, sort: 'soon', cat: fc, sid }, `آزاد امروز · ${SV[sid].name}`)}>همه</button></div>
+      <div className="chips pad-x">{CATS.map((c) => <button key={c.id} className={`chip ${fc === c.id ? 'on' : ''}`} onClick={() => { setFc(c.id); setFs('') }}><Glyph cat={c.id} s={14} /> {c.name}</button>)}</div>
+      <div className="chips pad-x sub">{byCat(fc).map((s) => <button key={s.id} className={`chip soft ${sid === s.id ? 'on' : ''}`} onClick={() => setFs(s.id)}>{s.name}</button>)}</div>
+      {now.length === 0 && <p className="muted small pad-x">امروز برای {SV[sid].name} نوبت آزادی نمانده؛ فردا را از جستجو ببینید.</p>}
       {now.length > 0 && <>
-        <div className="sec-title"><div><em className="en">Free today</em><h2>همین امروز نوبت دارند</h2></div><button onClick={() => results({ freeOnly: true, sort: 'soon' }, 'آزاد امروز')}>همه</button></div>
         <div className="rail now">
           {now.map((s) => (
             <motion.div key={s.id} className="now-card" whileTap={{ scale: 0.98 }} onClick={() => nav.push({ type: 'salon', id: s.id })}>
@@ -43,7 +52,8 @@ export default function Feed() {
               <div className="nw-in">
                 <b>{s.name}</b>
                 <small>{s.hood} · ★ {fa(s.rating.toFixed(1))}</small>
-                <span className="nw-slots">{s.slots.slice(0, 3).map((h) => <button key={h} onClick={(e) => { e.stopPropagation(); haptic(); nav.book({ salon: s.id, svc: [], start: h }) }}>{hh(h)}</button>)}</span>
+                <span className="nw-svc">{SV[sid].name} · {fmtDur(SV[sid].dur)} · {short(s.price)}</span>
+                <span className="nw-slots">{s.slots.slice(0, 3).map((h) => <button key={h} onClick={(e) => { e.stopPropagation(); haptic(); nav.book({ salon: s.id, svc: [sid], date: today(), start: h }) }}>{hh(h)}</button>)}</span>
               </div>
             </motion.div>
           ))}

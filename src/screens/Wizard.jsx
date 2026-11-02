@@ -53,6 +53,7 @@ function Flow({ opts, onClose }) {
   const [step, setStep] = useState(first)
   // خلاصه‌ی نوبت ثبت‌شده؛ بعد از ثبت، آن ساعت دیگر آزاد نیست پس از وضعیت زنده خوانده نمی‌شود
   const [done, setDone] = useState(null)
+  const [ask, setAsk] = useState(false)
 
   const team = v.artists.map((id) => db.artists.find((a) => a.id === id))
   const able = team.filter((a) => canDo(a, svc))
@@ -82,6 +83,8 @@ function Flow({ opts, onClose }) {
     if (step === 0 && opts.artist && canDo(db.artists.find((a) => a.id === opts.artist), svc)) return setStep(2)
     if (step === 0 && able.length === 0) return
     if (step < 3) return setStep(step + 1)
+    if (!ask) return setAsk(true)
+    setAsk(false)
     book({ salon: v.id, home: !!v.home, artist: who.id, svc, date, start, dur, price: total, paid: deposit, method, note })
     setDone({ who, svc, date, start, deposit }); celebrate()
   }
@@ -196,9 +199,30 @@ function Flow({ opts, onClose }) {
       <footer className="wz-foot">
         <div className="wz-sum">{svc.length ? <><b>{toman(total)}</b><small>{fa(svc.length)} خدمت · {fmtDur(dur)}</small></> : <small className="muted">هنوز خدمتی انتخاب نشده</small>}</div>
         <motion.button className="btn primary" disabled={!can || (step === 0 && able.length === 0)} whileTap={{ scale: 0.96 }} onClick={next}>
-          {step === 3 ? `پرداخت ${toman(deposit)}` : 'ادامه'}
+          {step === 3 ? `خرید نوبت · ${toman(deposit)}` : 'ادامه'}
         </motion.button>
       </footer>
+      {/* پاپ‌آپ اطمینان پیش از پرداخت */}
+      <AnimatePresence>
+        {ask && (
+          <motion.div className="confirm-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAsk(false)}>
+            <motion.div className="confirm-box" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }} onClick={(e) => e.stopPropagation()}>
+              <span className="cf-ico"><Icon n="wallet" s={24} /></span>
+              <h3>پرداخت را تأیید می‌کنید؟</h3>
+              <ul className="kv">
+                <li><span>سالن</span><b>{v.name}</b></li>
+                <li><span>خدمت</span><b>{svc.map((id) => SV[id].name).join(' + ')}</b></li>
+                <li><span>زمان</span><b>{relDay(date)} · {hh(start)}</b></li>
+                <li><span>آرتیست</span><b>{who?.name}</b></li>
+                <li><span>پرداخت از</span><b>{method === 'wallet' ? 'کیف پول' : 'کارت بانکی'}</b></li>
+                <li className="cf-sum"><span>بیعانه</span><b>{toman(deposit)}</b></li>
+              </ul>
+              <small className="muted">لغو تا ۲۴ ساعت قبل رایگان است و بیعانه برمی‌گردد.</small>
+              <div className="cf-acts"><button className="btn ghost" onClick={() => setAsk(false)}>انصراف</button><button className="btn primary" onClick={next}>بله، پرداخت کن</button></div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

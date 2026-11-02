@@ -5,7 +5,7 @@ import { Avatar, Badge, Empty, Icon, Sheet, Stars } from '../../components/ui'
 import { Portrait } from '../../components/Art'
 import { Logo } from '../../components/Logo'
 import { ThemeToggle } from '../../lib/theme'
-import { CAT, SV, fmtDur } from '../../lib/catalog'
+import { CAT, CATS, SV, byCat, fmtDur } from '../../lib/catalog'
 import { SOURCE_NAME, agenda, clientBook, dayTotals, favSvc } from '../../lib/agenda'
 import { KINDS } from '../../lib/seed'
 import { img } from '../../lib/photos'
@@ -29,7 +29,7 @@ const Kpi = ({ label, value, sub, icon }) => <div className="kpi"><div><small>{l
 const Panel = ({ title, action, children, className = '' }) => <section className={`panel ${className}`}>{(title || action) && <div className="panel-head"><h3>{title}</h3>{action}</div>}{children}</section>
 
 export default function Manager({ id }) {
-  const { db, logout } = useStore()
+  const { db, logout, switchTo } = useStore()
   const s = db.salons.find((x) => x.id === id)
   const [sec, setSec] = useState('overview')
   const [menu, setMenu] = useState(false)
@@ -52,6 +52,7 @@ export default function Manager({ id }) {
             </button>
           ))}
         </nav>
+        <button className="ds-out" onClick={() => switchTo('customer', 'مدیر سالن')}><Icon n="user" s={16} /> حساب مشتری من</button>
         <ThemeToggle />
         <button className="ds-out" onClick={logout}><Icon n="logout" s={16} /> خروج</button>
       </aside>
@@ -219,24 +220,43 @@ function Team({ s, team }) {
 }
 
 // ---------- خدمات و قیمت ----------
-function Services({ s }) {
-  const { updateSalon, toast } = useStore()
-  const cats = [...new Set(s.svc.map((x) => SV[x.sid].cat))]
+function Services({ s, team }) {
+  const { updateSalon, updateArtist, toast } = useStore()
+  const [open, setOpen] = useState(null)
+  // همه‌ی خدمات دسته‌هایی که سالن دارد، حتی خاموش‌ها، تا مدیر بتواند اضافه کند
+  const cats = [...new Set([...s.cats, ...s.svc.map((x) => SV[x.sid].cat)])]
+  const has = (sid) => s.svc.find((x) => x.sid === sid)
   const setPrice = (sid, v) => updateSalon(s.id, (x) => ({ svc: x.svc.map((y) => (y.sid === sid ? { ...y, price: v } : y)) }))
+  const toggle = (sv) => updateSalon(s.id, (x) => ({ svc: has(sv.id) ? x.svc.filter((y) => y.sid !== sv.id) : [...x.svc, { sid: sv.id, price: sv.price }] }))
+  const addCat = (c) => updateSalon(s.id, (x) => ({ cats: [...x.cats, c] }))
   return (
     <div className="grid-2 wide-first">
-      <Panel title="منوی خدمات">
+      <Panel title="منو و قیمت خدمات" action={<small className="muted">هر تغییر همان لحظه در صفحه‌ی سالن در اپ دیده می‌شود</small>}>
         {cats.map((c) => (
           <div key={c} className="svc-group">
-            <h4>{CAT[c].name}</h4>
-            {s.svc.filter((x) => SV[x.sid].cat === c).map((x) => (
-              <div key={x.sid} className="svc-edit"><span>{SV[x.sid].name}<small className="muted"> · {fmtDur(SV[x.sid].dur)}</small></span>
-                <label><input type="number" step="50000" value={x.price} onChange={(e) => setPrice(x.sid, Math.max(0, +e.target.value))} /><small>تومان</small></label></div>
-            ))}
+            <h4>{CAT[c].name}<small className="muted"> · {fa(byCat(c).filter((x) => has(x.id)).length)} از {fa(byCat(c).length)} خدمت فعال</small></h4>
+            {byCat(c).map((sv) => {
+              const x = has(sv.id)
+              return (
+                <div key={sv.id} className={`svc-edit ${x ? '' : 'off'}`}>
+                  <label className="sv-on"><input type="checkbox" checked={!!x} onChange={() => toggle(sv)} /></label>
+                  <span className="grow">{sv.name}<small className="muted"> · حداقل {fmtDur(sv.dur)}</small></span>
+                  {x ? <label><input type="number" step="50000" value={x.price} onChange={(e) => setPrice(sv.id, Math.max(0, +e.target.value))} /><small>تومان</small></label> : <small className="muted">در اپ نمایش داده نمی‌شود</small>}
+                </div>
+              )
+            })}
           </div>
         ))}
+        <div className="chips wrap add-cat"><small className="muted">افزودن دسته:</small>{CATS.filter((c) => !cats.includes(c.id)).map((c) => <button key={c.id} className="chip" onClick={() => addCat(c.id)}>+ {c.name}</button>)}</div>
       </Panel>
       <div>
+        <Panel title="سطح قیمت آرتیست‌ها">
+          <p className="muted small">قیمت هر خدمت برای آرتیست = قیمت منو × سطح او. مثلاً آرتیست ستاره ٪۲۰ گران‌تر.</p>
+          {team.map((a) => (
+            <div key={a.id} className="load-row"><Portrait a={a} size={32} ring={false} /><div><b>{a.name}</b><small className="muted">{a.cats.map((c) => CAT[c].name).join('، ')}</small></div>
+              <select value={Math.round(a.mul * 10) / 10} onChange={(e) => { updateArtist(a.id, { mul: +e.target.value }); toast({ icon: '✓', text: `قیمت‌های ${a.name.split(' ')[0]} به‌روز شد` }) }}>{[0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5].map((m) => <option key={m} value={m}>{m === 1 ? 'قیمت منو' : `${m > 1 ? '+' : '−'}٪${fa(Math.round(Math.abs(m - 1) * 100))}`}</option>)}</select></div>
+          ))}
+        </Panel>
         <Panel title="تخفیف این هفته">
           <p className="muted small">روی کارت سالن در اپ دیده می‌شود.</p>
           <div className="chips wrap">

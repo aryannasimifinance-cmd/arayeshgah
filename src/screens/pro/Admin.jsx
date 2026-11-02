@@ -38,7 +38,7 @@ function useBook() {
 }
 
 export default function Admin() {
-  const { db, logout } = useStore()
+  const { db, logout, switchTo } = useStore()
   const [sec, setSec] = useState('overview')
   const [menu, setMenu] = useState(false)
   const book = useBook()
@@ -60,6 +60,7 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <button className="ds-out" onClick={() => switchTo('customer', 'مدیر بیوتی‌ست')}><Icon n="user" s={16} /> حساب مشتری من</button>
         <ThemeToggle />
         <button className="ds-out" onClick={logout}><Icon n="logout" s={16} /> خروج</button>
       </aside>

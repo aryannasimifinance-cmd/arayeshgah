@@ -218,12 +218,12 @@ export default function Salon({ id }) {
           {cart.length ? (
             <div className="bb-sum"><b>{fa(cart.length)} خدمت · {toman(total)}</b><small>{pick.start != null ? `${relDay(pick.date)} · ${hh(pick.start)} تا ${hh(pick.start + slotsOf(dur) / 2)}` : `حداقل ${fmtDur(dur)} · زمان را انتخاب کنید`}</small></div>
           ) : <div className="bb-sum"><b>خدمت را انتخاب کنید</b><small>بعد از تقویم، ساعت آزاد را بزنید</small></div>}
-          <motion.button className="btn primary" whileTap={{ scale: 0.96 }} disabled={!cart.length}
+          <motion.button className={`btn primary ${pick.start != null && cart.length ? 'buy' : ''}`} whileTap={{ scale: 0.96 }} disabled={!cart.length}
             onClick={() => {
               if (tab !== 'svc') return setTab('svc')
               if (pick.start == null) return document.getElementById('slot-cal')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
               nav.book({ salon: s.id, svc: cart, artist: pick.artist === 'any' ? undefined : pick.artist, date: pick.date, start: pick.start })
-            }}>{pick.start != null && cart.length ? 'ادامه و پرداخت' : 'انتخاب زمان'}</motion.button>
+            }}>{pick.start != null && cart.length ? `خرید نوبت · ${short(total)}` : 'انتخاب زمان'}</motion.button>
         </motion.div>
       </AnimatePresence>
     </div>

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { SEED_V, seedDB } from './lib/seed'
+import { SEED_V, newArtist, seedDB } from './lib/seed'
 import { uid } from './lib/util'
 
 const KEY = 'beautyset:v1'
@@ -46,7 +46,13 @@ export function StoreProvider({ children }) {
     // سه نقش: customer (مشتری) · artist (آرتیست، id) · manager (مدیر سالن، id)
     login: (p) => setState((s) => ({ ...s, me: freshMe(p), session: { role: 'customer' } })),
     loginPro: (role, id) => setState((s) => ({ ...s, session: { role, id } })),
-    logout: () => setState((s) => ({ ...s, me: s.session?.role === 'customer' ? null : s.me, session: null })),
+    logout: () => setState((s) => ({ ...s, me: null, session: null })),
+    // جابه‌جایی بین پنل حرفه‌ای (آرتیست/سالن) و حساب مشتری همان شخص
+    switchTo: (role, name) => setState((s) => {
+      if (role !== 'customer') return s.me?.pro ? { ...s, session: { ...s.me.pro } } : s
+      const pro = s.me?.pro || (s.session?.role !== 'customer' ? { role: s.session.role, id: s.session.id } : null)
+      return { ...s, me: s.me ? { ...s.me, pro } : freshMe({ name: name || 'کاربر بیوتی‌ست', pro }), session: { role: 'customer' } }
+    }),
     reset: () => { localStorage.removeItem(KEY); setState({ db: seedDB(), me: null, session: null, accounts: [] }) },
     // ورود با نام کاربری/موبایل و رمز؛ خروجی: نقش یا پیام خطا
     signIn: (user, pass) => {
@@ -54,12 +60,29 @@ export function StoreProvider({ children }) {
       const acc = [...state.accounts, ...demoAccounts(state.db)].find((a) => a.username.toLowerCase() === u || a.phone === u)
       if (!acc) return { error: 'حسابی با این مشخصات پیدا نشد' }
       if (acc.pass !== pass) return { error: 'رمز عبور درست نیست' }
-      setState((s) => acc.role === 'customer'
-        ? { ...s, me: s.me?.phone === acc.phone ? s.me : freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue: 345 }), session: { role: 'customer' } }
-        : { ...s, session: { role: acc.role, id: acc.id } })
+      // هر حساب یک پروفایل مشتری هم دارد؛ حساب حرفه‌ای با me.pro به پنلش وصل است
+      const pro = acc.role === 'customer' ? null : { role: acc.role, id: acc.id }
+      setState((s) => ({
+        ...s,
+        me: s.me?.phone === acc.phone ? { ...s.me, pro } : freshMe({ name: acc.name, phone: acc.phone, city: acc.city || 'tehran', area: acc.area, hue: 345, pro }),
+        session: pro || { role: 'customer' },
+      }))
       return { ok: true }
     },
-    signUp: (acc) => setState((s) => ({ ...s, accounts: [...s.accounts, { ...acc, role: 'customer' }], me: freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue: 330 + Math.floor(Math.random() * 40) }), session: { role: 'customer' } })),
+    // ثبت‌نام مشتری یا آرتیست؛ آرتیست همان لحظه پروفایل عمومی و پنل دارد
+    signUp: (acc) => setState((s) => {
+      const hue = 330 + Math.floor(Math.random() * 40)
+      if (acc.kind !== 'artist') return { ...s, accounts: [...s.accounts, { ...acc, role: 'customer' }], me: freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue }), session: { role: 'customer' } }
+      const a = newArtist({ ...acc, hue })
+      const pro = { role: 'artist', id: a.id }
+      return {
+        ...s,
+        db: { ...s.db, artists: [...s.db.artists, a], salons: s.db.salons.map((x) => (x.id === a.salon ? { ...x, artists: [...x.artists, a.id] } : x)) },
+        accounts: [...s.accounts, { ...acc, role: 'artist', id: a.id }],
+        me: freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue, pro }),
+        session: pro,
+      }
+    }),
     accountExists: (user) => [...state.accounts, ...demoAccounts(state.db)].some((a) => a.username.toLowerCase() === user.toLowerCase() || a.phone === user),
     resetPass: (phone, pass) => setState((s) => ({ ...s, accounts: s.accounts.map((a) => (a.phone === phone ? { ...a, pass } : a)) })),
     // ---- آرتیست ----

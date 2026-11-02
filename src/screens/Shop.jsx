@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav, PageHead } from './Shell'
@@ -64,6 +64,31 @@ export function ProductSheet({ p, onClose }) {
   )
 }
 
+// جایگاه‌های بنر: بالای فروشگاه (اسلایدر) و وسط صفحه؛ بنرهای «تبلیغ» به فروشگاه حامی می‌روند
+const BANNERS = [
+  { t: 'هفته‌ی مراقبت پوست', s: 'تا ٪۲۰ تخفیف سرم و آبرسان', ph: '1583209814683-c023dd293cc6', cat: 'skin', tone: '#F6DDE3' },
+  { t: 'عطرهای پاییزی', s: 'یاس، وانیل و گل صدتومانی', ph: '1761659760494-32b921a2449f', cat: 'perfume', tone: '#EFE4DA' },
+  { t: 'ست ابزار حرفه‌ای', s: 'برای سالن‌ها و آرتیست‌ها', ph: '1511923199659-1c16881689de', cat: 'tools', tone: '#E9E3EE' },
+]
+const MID = { t: 'لاک‌های رنگ سال', s: 'نود، صورتی چرک و قرمز گیلاسی', ph: '1602585578130-c9076e09330d', cat: 'nail', tone: '#F8E1E6' }
+
+function Banners({ onCat }) {
+  const [i, setI] = useState(0)
+  useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % BANNERS.length), 4500); return () => clearInterval(t) }, [])
+  const b = BANNERS[i]
+  return (
+    <div className="banner-slot">
+      <AnimatePresence mode="wait">
+        <motion.button key={i} className="banner" style={{ background: b.tone }} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }} onClick={() => onCat(b.cat)}>
+          <div><small>پیشنهاد ویژه</small><b>{b.t}</b><span>{b.s}</span><em>خرید ‹</em></div>
+          <img src={img(b.ph)} alt="" />
+        </motion.button>
+      </AnimatePresence>
+      <div className="bn-dots">{BANNERS.map((_, k) => <i key={k} className={k === i ? 'on' : ''} onClick={() => setI(k)} />)}</div>
+    </div>
+  )
+}
+
 // تب فروشگاه: مارکت‌پلیس همه‌ی فروشگاه‌ها
 export default function Shop() {
   const { shops, products } = useLive()
@@ -85,6 +110,7 @@ export default function Shop() {
         {PCATS.map((c) => <button key={c.id} className={`chip ${cat === c.id ? 'on' : ''}`} onClick={() => setCat(cat === c.id ? '' : c.id)}>{c.name}</button>)}
       </div>
       {!t && !cat && <>
+        <Banners onCat={setCat} />
         <div className="sec-title"><div><em className="en">Stores</em><h2>فروشگاه‌ها</h2></div></div>
         <div className="rail">
           {shops.map((s) => (
@@ -98,6 +124,12 @@ export default function Shop() {
           <div className="sec-title"><div><em className="en">Deals</em><h2>تخفیف‌دارها</h2></div></div>
           <div className="rail">{deals.map((p) => <div key={p.id} className="rail-p"><ProductCard p={p} onOpen={setOpen} /></div>)}</div>
         </>}
+        {(() => { const sp = shops.find((x) => x.type === 'vendor'); return sp && (
+          <button className="banner wide" style={{ background: MID.tone }} onClick={() => nav.push({ type: 'shop', id: sp.id })}>
+            <div><small>تبلیغ · {sp.name}</small><b>{MID.t}</b><span>{MID.s}</span><em>دیدن فروشگاه ‹</em></div>
+            <img src={img(MID.ph)} alt="" />
+          </button>
+        ) })()}
         <div className="sec-title"><div><em className="en">All products</em><h2>همه‌ی محصولات</h2></div></div>
       </>}
       <div className="pgrid">{list.map((p) => <ProductCard key={p.id} p={p} onOpen={setOpen} />)}</div>
@@ -144,6 +176,7 @@ export function Cart() {
   const nav = useNav()
   const [method, setMethod] = useState('wallet')
   const [done, setDone] = useState(null)
+  const [ask, setAsk] = useState(false)
   const items = (me.cart || []).map((i) => ({ ...i, p: db.products.find((p) => p.id === i.pid) })).filter((i) => i.p)
   const groups = items.reduce((m, i) => { (m[i.p.shop] ||= []).push(i); return m }, {})
   const total = items.reduce((a, i) => a + i.p.price * i.qty, 0)
@@ -175,7 +208,17 @@ export function Cart() {
           <ul className="kv"><li><span>جمع کالاها</span><b>{toman(total)}</b></li><li><span>ارسال ({fa(Object.keys(groups).length)} فروشگاه)</span><b>{toman(ship)}</b></li><li><span>قابل پرداخت</span><b>{toman(total + ship)}</b></li></ul>
           <button className={`pay ${method === 'wallet' ? 'on' : ''}`} onClick={() => setMethod('wallet')}><Icon n="wallet" /><div><b>کیف پول</b><small className="muted">موجودی {toman(me.wallet)}</small></div><span className="radio" /></button>
           <button className={`pay ${method === 'card' ? 'on' : ''}`} onClick={() => setMethod('card')}><Icon n="money" /><div><b>کارت بانکی</b><small className="muted">درگاه امن</small></div><span className="radio" /></button>
-          <button className="btn primary block lg" disabled={method === 'wallet' && me.wallet < total + ship} onClick={() => { setDone(checkout(method)); celebrate() }}>پرداخت {toman(total + ship)}</button>
+          <button className="btn primary block lg" disabled={method === 'wallet' && me.wallet < total + ship} onClick={() => setAsk(true)}>خرید · {toman(total + ship)}</button>
+          <AnimatePresence>{ask && (
+            <motion.div className="confirm-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAsk(false)}>
+              <motion.div className="confirm-box" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} onClick={(e) => e.stopPropagation()}>
+                <span className="cf-ico"><Icon n="bag" s={24} /></span>
+                <h3>خرید را تأیید می‌کنید؟</h3>
+                <ul className="kv"><li><span>کالا</span><b>{fa(items.reduce((a, i) => a + i.qty, 0))} عدد از {fa(Object.keys(groups).length)} فروشگاه</b></li><li><span>پرداخت از</span><b>{method === 'wallet' ? 'کیف پول' : 'کارت بانکی'}</b></li><li className="cf-sum"><span>مبلغ</span><b>{toman(total + ship)}</b></li></ul>
+                <div className="cf-acts"><button className="btn ghost" onClick={() => setAsk(false)}>انصراف</button><button className="btn primary" onClick={() => { setAsk(false); setDone(checkout(method)); celebrate() }}>بله، پرداخت کن</button></div>
+              </motion.div>
+            </motion.div>
+          )}</AnimatePresence>
         </>}
         <div className="foot-space" />
       </div>
