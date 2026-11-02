@@ -1,10 +1,10 @@
 // داده‌ی نمونه: سالن‌ها، آرتیست‌ها و نظرها — تکرارپذیر با بذر ثابت
-import { CITIES } from './geo'
+import { CITIES, pointIn } from './geo'
 import { SERVICES, SV, byCat } from './catalog'
 import { addDays, pick, rng, today } from './util'
 import { KIND_PH, PH } from './photos'
 
-export const SEED_V = 4
+export const SEED_V = 5
 
 // نوع هر کسب‌وکار و دسته‌هایی که ارائه می‌دهد
 export const KINDS = {
@@ -68,7 +68,7 @@ const REPLIES = ['ممنونیم از لطفتون، خوشحالیم راضی �
 const DENSITY = { t1: 5, t2: 5, t3: 5, t4: 3, t5: 3, t6: 4, t7: 3, t8: 2, t22: 2, t21: 1, t9: 1, t10: 1, t11: 2, t12: 1, t13: 2, t14: 1, t15: 1, t16: 1, t17: 1, t18: 1, t19: 0, t20: 1, k1: 1, k2: 3, k3: 3, k4: 3, k5: 2, k6: 2, k7: 2, k8: 1, k9: 1, k10: 2 }
 const KIND_POOL = ['salon', 'salon', 'salon', 'nail', 'lash', 'spa', 'spa', 'skin', 'bridal']
 const TIER_MUL = [0, 0.75, 1, 1.35, 1.8]
-const NORTH = ['t1', 't2', 't3', 'k3', 'k4']
+const NORTH = ['t1', 't2', 't3', 'k1', 'k8']
 
 const r1 = (x) => Math.round(x * 10) / 10
 const roundP = (x) => Math.round(x / 50000) * 50000
@@ -126,7 +126,7 @@ export function seedDB() {
         const open = kind === 'spa' ? 10 : 9 + (r() < 0.3 ? 1 : 0)
         const s = {
           id, kind, name: `${pick(r, K.pre)} ${word}`, word, en, city, area: ar.id, hood: pick(r, ar.hoods),
-          at: [ar.at[0] + (r() - 0.5) * 0.022, ar.at[1] + (r() - 0.5) * 0.028], tier, cats, svc, amen,
+          at: pointIn(city, ar.id, r), tier, cats, svc, amen,
           open, close: amen.includes('late') ? 23 : 20 + Math.floor(r() * 2),
           rating: r1(4.1 + r() * 0.85), reviewsN: Math.floor(30 + r() * 600), verified: r() < 0.6,
           since: 1390 + Math.floor(r() * 13), hue: Math.floor(r() * 360), seed: Math.floor(r() * 1e6),

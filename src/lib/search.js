@@ -5,7 +5,7 @@ import { DAYPARTS, SERVICES, SV, byCat } from './catalog'
 import { KINDS, freeStarts, fromPrice } from './seed'
 import { today } from './util'
 
-export const BLANK = { areas: [], cat: '', sid: '', date: today(), daypart: '', text: '', minRating: 0, amen: [], tiers: [], sort: 'best', kind: '', freeOnly: false }
+export const BLANK = { areas: [], cat: '', sid: '', date: today(), daypart: '', text: '', minRating: 0, amen: [], tiers: [], sort: 'best', kind: '', freeOnly: false, offer: false }
 
 const norm = (s) => (s || '').toLowerCase().replace(/[‌\s]+/g, '').replace(/ي/g, 'ی').replace(/ك/g, 'ک')
 export const isOpen = (s) => { const h = new Date().getHours(); return h >= s.open && h < s.close }
@@ -29,6 +29,7 @@ export function useSearch(q) {
       && (!q.areas.length || q.areas.includes(s.area))
       && (!sids.length || s.svc.some((x) => sids.includes(x.sid)))
       && (!q.kind || s.kind === q.kind)
+      && (!q.offer || s.offer)
       && s.rating >= q.minRating
       && q.amen.every((x) => s.amen.includes(x))
       && (!q.tiers.length || q.tiers.includes(s.tier))

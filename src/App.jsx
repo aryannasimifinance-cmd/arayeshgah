@@ -11,7 +11,7 @@ const Manager = lazy(() => import('./screens/pro/Manager'))
 
 // لینک دمو: ‎#demo ‎#demo=map ‎#demo=salon.s3 (مشتری) · ‎#artist · ‎#manager
 const [hashRole, hashTab] = location.hash.slice(1).split('=')
-export const startTab = hashRole === 'demo' && hashTab ? hashTab : 'home'
+export const startTab = hashRole === 'demo' && hashTab ? hashTab : 'search'
 
 export default function App() {
   const { db, me, session, login, loginPro } = useStore()

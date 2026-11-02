@@ -114,6 +114,7 @@ export default function MapTab() {
     }, () => toast({ icon: '📍', text: 'اجازه‌ی موقعیت داده نشد' }), { timeout: 6000 })
   }
   const typing = focus && q.text
+  const nF = (q.cat ? 1 : 0) + (q.freeOnly ? 1 : 0) + (openNow ? 1 : 0) + (q.offer ? 1 : 0) + (q.minRating ? 1 : 0) + (q.tiers.length ? 1 : 0) + q.amen.length + (q.kind ? 1 : 0)
   const one = q.areas.length === 1 ? areaOf(me.city, q.areas[0]) : null
 
   return (
@@ -139,9 +140,16 @@ export default function MapTab() {
         <AnimatePresence>
           {!typing && (
             <motion.div className="map-chips" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
-              <button className={`chip glass ${q.minRating || q.amen.length || q.tiers.length || q.kind ? 'on' : ''}`} onClick={() => setFilt(true)} aria-label="فیلتر"><Icon n="filter" s={14} /></button>
+              <button className={`chip glass ${q.kind ? 'on' : ''}`} onClick={() => setFilt(true)} aria-label="همه‌ی فیلترها"><Icon n="filter" s={14} /> فیلترها{nF ? ` (${fa(nF)})` : ''}</button>
               <button className={`chip glass ${q.freeOnly ? 'on' : ''}`} onClick={() => set({ freeOnly: !q.freeOnly })}><span className="live" /> آزاد امروز</button>
               <button className={`chip glass ${openNow ? 'on' : ''}`} onClick={() => setOpenNow(!openNow)}>الان باز</button>
+              <button className={`chip glass ${q.offer ? 'on' : ''}`} onClick={() => set({ offer: !q.offer })}><Icon n="tag" s={13} /> تخفیف‌دار</button>
+              <button className={`chip glass ${q.minRating ? 'on' : ''}`} onClick={() => set({ minRating: q.minRating ? 0 : 4.6 })}>★ ۴٫۶+</button>
+              <button className={`chip glass ${q.tiers.length ? 'on' : ''}`} onClick={() => set({ tiers: q.tiers.length ? [] : [1, 2] })}>به‌صرفه</button>
+              {[['parking', 'پارکینگ', 'car'], ['home', 'در منزل', 'home'], ['late', 'تا دیروقت', 'moon']].map(([k, n, ic]) => (
+                <button key={k} className={`chip glass ${q.amen.includes(k) ? 'on' : ''}`} onClick={() => set({ amen: q.amen.includes(k) ? q.amen.filter((x) => x !== k) : [...q.amen, k] })}><Icon n={ic} s={13} /> {n}</button>
+              ))}
+              <span className="chip-sep" />
               {CATS.map((c) => <button key={c.id} className={`chip glass ${q.cat === c.id ? 'on' : ''}`} onClick={() => set({ cat: q.cat === c.id ? '' : c.id, sid: '' })}><Glyph cat={c.id} s={14} w={1.6} /> {c.name}</button>)}
             </motion.div>
           )}

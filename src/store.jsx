@@ -15,10 +15,18 @@ const freshMe = (p = {}) => ({
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY))
-    if (s?.db?.v === SEED_V) return { ...s, session: s.session || (s.me ? { role: 'customer' } : null) }
+    if (s?.db?.v === SEED_V) return { accounts: [], ...s, session: s.session || (s.me ? { role: 'customer' } : null) }
   } catch { /* داده‌ی خراب: از نو */ }
-  return { db: seedDB(), me: null, session: null }
+  return { db: seedDB(), me: null, session: null, accounts: [] }
 }
+
+// حساب‌های نمونه برای ارائه (رمز همه ۱۲۳۴)
+export const DEMO_PASS = '1234'
+export const demoAccounts = (db) => [
+  { username: 'negar', phone: '09120000000', pass: DEMO_PASS, role: 'customer', name: 'نگار کاظمی', city: 'tehran', area: 't2' },
+  ...(() => { const a = db.artists.find((x) => x.badge === 'star' && x.salon); return a ? [{ username: a.handle, phone: '09121111111', pass: DEMO_PASS, role: 'artist', id: a.id, name: a.name }] : [] })(),
+  ...(() => { const s = db.salons.find((x) => x.kind === 'salon' && x.city === 'tehran'); return s ? [{ username: 'salon', phone: '09122222222', pass: DEMO_PASS, role: 'manager', id: s.id, name: s.name }] : [] })(),
+]
 
 export function StoreProvider({ children }) {
   const [state, setState] = useState(load)
@@ -38,7 +46,21 @@ export function StoreProvider({ children }) {
     login: (p) => setState((s) => ({ ...s, me: freshMe(p), session: { role: 'customer' } })),
     loginPro: (role, id) => setState((s) => ({ ...s, session: { role, id } })),
     logout: () => setState((s) => ({ ...s, me: s.session?.role === 'customer' ? null : s.me, session: null })),
-    reset: () => { localStorage.removeItem(KEY); setState({ db: seedDB(), me: null, session: null }) },
+    reset: () => { localStorage.removeItem(KEY); setState({ db: seedDB(), me: null, session: null, accounts: [] }) },
+    // ورود با نام کاربری/موبایل و رمز؛ خروجی: نقش یا پیام خطا
+    signIn: (user, pass) => {
+      const u = user.trim().toLowerCase().replace(/^@/, '')
+      const acc = [...state.accounts, ...demoAccounts(state.db)].find((a) => a.username.toLowerCase() === u || a.phone === u)
+      if (!acc) return { error: 'حسابی با این مشخصات پیدا نشد' }
+      if (acc.pass !== pass) return { error: 'رمز عبور درست نیست' }
+      setState((s) => acc.role === 'customer'
+        ? { ...s, me: s.me?.phone === acc.phone ? s.me : freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue: 345 }), session: { role: 'customer' } }
+        : { ...s, session: { role: acc.role, id: acc.id } })
+      return { ok: true }
+    },
+    signUp: (acc) => setState((s) => ({ ...s, accounts: [...s.accounts, { ...acc, role: 'customer' }], me: freshMe({ name: acc.name, phone: acc.phone, city: acc.city, area: acc.area, hue: 330 + Math.floor(Math.random() * 40) }), session: { role: 'customer' } })),
+    accountExists: (user) => [...state.accounts, ...demoAccounts(state.db)].some((a) => a.username.toLowerCase() === user.toLowerCase() || a.phone === user),
+    resetPass: (phone, pass) => setState((s) => ({ ...s, accounts: s.accounts.map((a) => (a.phone === phone ? { ...a, pass } : a)) })),
     // ---- آرتیست ----
     toggleOff: (aid, date) => setDB((db) => ({ artists: db.artists.map((a) => (a.id === aid ? { ...a, off: (a.off || []).includes(date) ? a.off.filter((d) => d !== date) : [...(a.off || []), date] } : a)) })),
     mark: (id, status) => setDB((db) => ({ marks: { ...(db.marks || {}), [id]: status } })),

@@ -64,11 +64,22 @@ export default function Visits() {
   const up = mine.filter((b) => b.status === 'confirmed').sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))
   const past = mine.filter((b) => b.status !== 'confirmed').sort((a, b) => (b.date + b.start).localeCompare(a.date + a.start))
   const pending = past.filter((b) => b.status === 'done' && !b.reviewed)
+  const next = up[0]
   const list = tab === 'up' ? up : past
 
   return (
     <div className="scroll visits">
       <header className="top plain"><div><em className="en">My Appointments</em><h1>نوبت‌های من</h1></div></header>
+      {next && (() => { const s = db.salons.find((x) => x.id === next.salon); const a = db.artists.find((x) => x.id === next.artist); return (
+        <section className="next-big">
+          <small>نوبت بعدی شما</small>
+          <div className="nb-row">
+            <div className="nc-date"><b>{relDay(next.date)}</b><span>{hh(next.start)}</span></div>
+            <div><b>{next.svc.map((id) => SV[id].name).join(' + ')}</b><span>{s ? s.name : 'خدمات در منزل'} · {a?.name}</span></div>
+          </div>
+          <div className="nc-actions"><button onClick={() => toast({ icon: '🧭', text: 'مسیریابی باز می‌شود' })}><Icon n="route" s={15} /> مسیر</button><button onClick={() => toast({ icon: '📅', text: 'به تقویم گوشی اضافه شد' })}><Icon n="cal" s={15} /> تقویم</button><button onClick={() => s && nav.push({ type: 'salon', id: s.id })}><Icon n="fwd" s={15} /> سالن</button></div>
+        </section>
+      ) })()}
       {pending.length > 0 && (
         <motion.button className="review-nudge" whileTap={{ scale: 0.98 }} onClick={() => setRev(pending[0])}>
           <span className="rn-stars"><Icon n="star" s={20} fill="currentColor" w={0} /></span>
@@ -78,7 +89,7 @@ export default function Visits() {
       )}
       <div className="pad-x"><Seg id="vtab" items={[['up', `پیش رو (${fa(up.length)})`], ['past', 'گذشته']]} value={tab} onChange={setTab} /></div>
       <div className="pad">
-        {list.length === 0 && <Empty icon="cal" title={tab === 'up' ? 'نوبتی ندارید' : 'هنوز سابقه‌ای نیست'} text="وقتشه یه کم به خودتون برسید ✨"><button className="btn primary" onClick={() => nav.go('home')}>رزرو نوبت</button></Empty>}
+        {list.length === 0 && <Empty icon="cal" title={tab === 'up' ? 'نوبتی ندارید' : 'هنوز سابقه‌ای نیست'} text="وقتشه یه کم به خودتون برسید ✨"><button className="btn primary" onClick={() => nav.go('search')}>رزرو نوبت</button></Empty>}
         {list.map((b) => {
           const s = db.salons.find((x) => x.id === b.salon)
           const a = db.artists.find((x) => x.id === b.artist)

@@ -6,12 +6,12 @@ import { Logo } from '../components/Logo'
 import { Avatar, Badge, Icon, Rating } from '../components/ui'
 import { Portrait } from '../components/Art'
 import { SalonCard } from '../components/cards'
-import { CAT, SV } from '../lib/catalog'
+import { CAT } from '../lib/catalog'
 import { BLANK, useSearch } from '../lib/search'
-import { fa, hh, relDay } from '../lib/util'
+import { fa } from '../lib/util'
 import { Finder } from './Book'
+import MapTab from './MapTab'
 
-const greet = () => { const h = new Date().getHours(); return h < 12 ? 'صبح بخیر' : h < 17 ? 'روز بخیر' : 'عصر بخیر' }
 
 // گزینه‌های «برترین‌ها» زیر کارت جستجو
 const TOPS = [
@@ -28,9 +28,9 @@ export default function Home() {
   const { db, me } = useStore()
   const nav = useNav()
   const [top, setTop] = useState('salons')
+  const [mode, setMode] = useState('find') // find · map
   const free = useSearch({ ...BLANK, freeOnly: true, sort: 'soon' }).list
   const all = useSearch({ ...BLANK, sort: 'rating' }).list
-  const next = db.bookings.filter((b) => b.user === 'me' && b.status === 'confirmed').sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start))[0]
   const score = (s) => s.rating * Math.log(s.reviewsN)
 
   const pick = useMemo(() => {
@@ -44,28 +44,25 @@ export default function Home() {
   }, [top, all, free, db.artists, me.city])
   const T = TOPS.find((x) => x.id === top)
 
+  const head = (
+    <header className="search-head">
+      <Logo size={15} en={false} />
+      <div className="mode-seg">
+        {[['find', 'جستجو', 'search'], ['map', 'نقشه', 'map']].map(([k, n, ic]) => (
+          <button key={k} className={mode === k ? 'on' : ''} onClick={() => setMode(k)}>
+            {mode === k && <motion.span layoutId="mode-on" className="mode-ind" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
+            <Icon n={ic} s={15} /><span>{n}</span>
+          </button>
+        ))}
+      </div>
+      <button onClick={() => nav.go('me')} aria-label="پروفایل من" className="me-btn"><Avatar u={me} size={34} />{me.notes.some((n) => !n.read) && <i className="ping" />}</button>
+    </header>
+  )
+  if (mode === 'map') return <div className="search-page">{head}<div className="map-embed"><MapTab /></div></div>
   return (
     <div className="scroll home">
-      <header className="top">
-        <Logo size={17} />
-        <div className="top-r">
-          <small className="muted">{greet()}، {me.name.split(' ')[0]}</small>
-          <button onClick={() => nav.go('me')} aria-label="پروفایل من" className="me-btn">
-            <Avatar u={me} size={38} />
-            {me.notes.some((n) => !n.read) && <i className="ping" />}
-          </button>
-        </div>
-      </header>
-
-      <Finder />
-
-      {next && (() => { const s = db.salons.find((x) => x.id === next.salon); return (
-        <motion.button className="next-card" whileTap={{ scale: 0.98 }} onClick={() => nav.go('visits')}>
-          <div className="nc-date"><b>{relDay(next.date)}</b><span>{hh(next.start)}</span></div>
-          <div className="nc-body"><small>نوبت بعدی شما</small><b>{SV[next.svc[0]].name}</b><span className="muted">{s ? s.name : 'در منزل'}</span></div>
-          <Icon n="fwd" s={18} />
-        </motion.button>
-      ) })()}
+      {head}
+      <Finder onMap={() => setMode('map')} />
 
       <div className="sec-title"><div><em className="en">The Best</em><h2>برترین‌ها</h2></div>
         <button onClick={() => (top === 'artists' ? nav.go('artists') : nav.push({ type: 'results', q: { ...BLANK, ...pick.q }, title: `برترین‌ها · ${T.name}` }))}>همه</button>

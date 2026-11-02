@@ -5,7 +5,7 @@ import { Icon } from '../components/ui'
 import { haptic } from '../lib/util'
 import { startTab } from '../App'
 import Discover from './Discover'
-import MapTab from './MapTab'
+import Feed from './Feed'
 import Artists from './Artists'
 import Services, { CategoryPage } from './Services'
 import Visits from './Visits'
@@ -17,9 +17,9 @@ import Wizard from './Wizard'
 
 // ترتیب تب‌ها از راست؛ جستجو در وسط. «من» از عکس پروفایل بالای صفحه باز می‌شود
 const TABS = [
-  { id: 'map', name: 'نقشه', icon: 'map' },
+  { id: 'home', name: 'خانه', icon: 'home' },
   { id: 'services', name: 'خدمات', icon: 'grid' },
-  { id: 'home', name: 'جستجو', icon: 'search', center: true },
+  { id: 'search', name: 'جستجو', icon: 'search', center: true },
   { id: 'artists', name: 'آرتیست‌ها', icon: 'sparkle' },
   { id: 'visits', name: 'نوبت‌ها', icon: 'cal' },
 ]
@@ -31,7 +31,7 @@ export default function Shell() {
   const { db, me } = useStore()
   // لینک دمو می‌تواند مستقیم صفحه‌ای را باز کند: ‎#demo=salon.s3 یا ‎#demo=wizard.s3
   const [dt, did] = startTab.split('.')
-  const [tab, setTab] = useState(did ? 'home' : startTab)
+  const [tab, setTab] = useState(did ? 'search' : startTab === 'map' ? 'search' : startTab)
   const [stack, setStack] = useState(did && dt !== 'wizard' ? [{ type: dt, id: did, k: 1 }] : [])
   const [wiz, setWiz] = useState(dt === 'wizard' ? { salon: did, svc: [] } : null)
 
@@ -50,10 +50,10 @@ export default function Shell() {
     <Nav.Provider value={{ push, pop, book, go, tab }}>
       <div className="shell">
         <div className="tab-pages">
-          {tab === 'home' && <Discover />}
+          {tab === 'home' && <Feed />}
+          {tab === 'search' && <Discover />}
           {tab === 'services' && <Services />}
           {tab === 'artists' && <Artists />}
-          {tab === 'map' && <MapTab />}
           {tab === 'visits' && <Visits />}
         </div>
         <AnimatePresence>

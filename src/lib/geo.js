@@ -1,14 +1,12 @@
-import { Delaunay } from 'd3-delaunay'
+import BOUNDS from './districts.json'
 
-// نواحی تهران (۲۲ منطقه‌ی شهرداری) و کرج. at: مرکز تقریبی [lat, lng]
+// مناطق شهرداری تهران (۲۲) و کرج (۱۰). at و مرز از districts.json می‌آید
 // x/y: جای کاشی در نقشه‌ی شماتیک (شمال بالا، غرب چپ)؛ w/h: کشیدگی کاشی
 const D = (id, name, at, x, y, hoods, w = 1, h = 1) => ({ id, name, at, x, y, w, h, hoods })
 
 export const CITIES = {
   tehran: {
     name: 'تهران', en: 'Tehran', center: [35.715, 51.39], zoom: 11, cols: 6, rows: 5,
-    // دور شهر برای بریدن نواحی روی نقشه
-    outline: [[35.745, 51.12], [35.79, 51.17], [35.815, 51.33], [35.83, 51.45], [35.805, 51.56], [35.735, 51.6], [35.64, 51.56], [35.56, 51.47], [35.565, 51.38], [35.61, 51.27], [35.68, 51.17]],
     areas: [
       D('t22', 'منطقه ۲۲', [35.755, 51.2], 0, 0, ['چیتگر', 'شهرک گلستان', 'دریاچه']),
       D('t5', 'منطقه ۵', [35.755, 51.31], 1, 0, ['پونک', 'جنت‌آباد', 'شهران', 'اکباتان']),
@@ -35,82 +33,50 @@ export const CITIES = {
     ],
   },
   karaj: {
-    name: 'کرج', en: 'Karaj', center: [35.81, 50.96], zoom: 12, cols: 4, rows: 4,
-    outline: [[35.875, 50.85], [35.885, 50.95], [35.875, 51.04], [35.82, 51.06], [35.73, 51.02], [35.7, 50.97], [35.74, 50.9], [35.8, 50.84]],
+    name: 'کرج', en: 'Karaj', center: [35.825, 50.96], zoom: 12, cols: 5, rows: 4,
     areas: [
-      D('k1', 'کمالشهر و حصارک', [35.86, 50.885], 0, 0, ['کمالشهر', 'حصارک']),
-      D('k2', 'گوهردشت', [35.845, 50.935], 1, 0, ['گوهردشت', 'رجایی‌شهر']),
-      D('k3', 'جهانشهر', [35.835, 50.98], 2, 0, ['جهانشهر', 'شاهین‌ویلا']),
-      D('k4', 'عظیمیه', [35.855, 51.015], 3, 0, ['عظیمیه', 'اتحاد', 'میدان مهران']),
-      D('k5', 'مهرشهر', [35.815, 50.89], 0, 1, ['مهرشهر', 'بلوار ارم']),
-      D('k6', 'مرکز شهر', [35.81, 50.985], 1, 1, ['طالقانی', 'میدان آزادگان', 'چهارراه طالقانی'], 2),
-      D('k7', 'دهقان‌ویلا', [35.825, 51.025], 3, 1, ['دهقان‌ویلا', 'باغستان شرقی']),
-      D('k8', 'باغستان', [35.775, 50.92], 0, 2, ['باغستان', 'حیدرآباد'], 2),
-      D('k9', 'گلشهر', [35.785, 50.97], 2, 2, ['گلشهر', 'گلزار'], 2),
-      D('k10', 'فردیس', [35.735, 50.985], 1, 3, ['فردیس', 'کانال'], 3),
+      D('k6', 'منطقه ۶', null, 1, 0, ['گوهردشت', 'باغ‌کوه']),
+      D('k7', 'منطقه ۷', null, 2, 0, ['حصارک', 'شهرک بنفشه'], 2),
+      D('k5', 'منطقه ۵', null, 1, 1, ['رجایی‌شهر', 'گلدشت']),
+      D('k8', 'منطقه ۸', null, 2, 1, ['جهانشهر', 'شاهین‌ویلا'], 2),
+      D('k1', 'منطقه ۱', null, 4, 1, ['عظیمیه', 'کرج نو', 'میدان مهران']),
+      D('k3', 'منطقه ۳', null, 0, 2, ['مهرشهر غربی', 'بلوار ارم'], 1, 2),
+      D('k4', 'منطقه ۴', null, 1, 2, ['مهرشهر', 'شهرک ناز']),
+      D('k9', 'منطقه ۹', null, 2, 2, ['طالقانی', 'میدان آزادگان'], 2),
+      D('k10', 'منطقه ۱۰', null, 4, 2, ['دهقان‌ویلا', 'باغستان شرقی'], 1, 2),
+      D('k2', 'منطقه ۲', null, 1, 3, ['گلشهر', 'حیدرآباد'], 3),
     ],
   },
 }
 export const CITY_IDS = Object.keys(CITIES)
 export const areaOf = (city, id) => CITIES[city]?.areas.find((a) => a.id === id)
 
-// ---------- بریدن نواحی واقعی روی نقشه: ورونوی مراکز، بریده با دور شهر ----------
-function clip(poly, hull) {
-  // ساترلند–هاجمن؛ hull محدب و پادساعتگرد
-  let out = poly
-  for (let i = 0; i < hull.length; i++) {
-    const a = hull[i], b = hull[(i + 1) % hull.length]
-    const inside = (p) => (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]) >= 0
-    const cross = (p, q) => {
-      const A1 = q[1] - p[1], B1 = p[0] - q[0], C1 = A1 * p[0] + B1 * p[1]
-      const A2 = b[1] - a[1], B2 = a[0] - b[0], C2 = A2 * a[0] + B2 * a[1]
-      const det = A1 * B2 - A2 * B1
-      return [(B2 * C1 - B1 * C2) / det, (A1 * C2 - A2 * C1) / det]
-    }
-    const inp = out; out = []
-    if (!inp.length) break
-    let s = inp[inp.length - 1]
-    for (const e of inp) {
-      if (inside(e)) { if (!inside(s)) out.push(cross(s, e)); out.push(e) }
-      else if (inside(s)) out.push(cross(s, e))
-      s = e
-    }
+// ---------- مرز رسمی مناطق شهرداری (OpenStreetMap، از طریق Nominatim) ----------
+// districts.json: { city: { outline: [[lat,lng]], areas: { id: { poly, c } } } }
+Object.entries(BOUNDS).forEach(([city, b]) => {
+  CITIES[city].outline = b.outline
+  CITIES[city].areas.forEach((a) => { a.at = b.areas[a.id].c })
+})
+export const areaShapes = (city) => Object.fromEntries(Object.entries(BOUNDS[city].areas).map(([id, v]) => [id, v.poly]))
+export const areaCenters = (city) => Object.fromEntries(Object.entries(BOUNDS[city].areas).map(([id, v]) => [id, v.c]))
+
+function inside([y, x], poly) {
+  let c = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [y1, x1] = poly[i], [y2, x2] = poly[j]
+    if ((y1 > y) !== (y2 > y) && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) c = !c
   }
-  return out
+  return c
 }
-
-const cache = {}
-// خروجی: { [areaId]: [[lat,lng], ...] }
-export function areaShapes(city) {
-  if (cache[city]) return cache[city]
-  const c = CITIES[city]
-  const P = (ll) => [ll[1], ll[0]] // x=lng, y=lat
-  const o = c.outline.map(P)
-  const hd = Delaunay.from(o)
-  let hull = Array.from(hd.hull, (i) => o[i])
-  // جهت پادساعتگرد
-  const area = hull.reduce((s, p, i) => { const q = hull[(i + 1) % hull.length]; return s + p[0] * q[1] - q[0] * p[1] }, 0)
-  if (area < 0) hull = hull.reverse()
-  const xs = o.map((p) => p[0]), ys = o.map((p) => p[1])
-  const pts = c.areas.map((a) => P(a.at))
-  const v = Delaunay.from(pts).voronoi([Math.min(...xs) - 0.05, Math.min(...ys) - 0.05, Math.max(...xs) + 0.05, Math.max(...ys) + 0.05])
-  cache[city] = Object.fromEntries(c.areas.map((a, i) => {
-    const cell = (v.cellPolygon(i) || []).slice(0, -1)
-    return [a.id, clip(cell, hull).map(([x, y]) => [y, x])]
-  }))
-  return cache[city]
+// نقطه‌ی تصادفی داخل مرز یک منطقه (برای جای سالن‌ها)
+export function pointIn(city, id, r) {
+  const poly = BOUNDS[city].areas[id].poly
+  const lats = poly.map((p) => p[0]), lngs = poly.map((p) => p[1])
+  for (let k = 0; k < 200; k++) {
+    const p = [Math.min(...lats) + r() * (Math.max(...lats) - Math.min(...lats)), Math.min(...lngs) + r() * (Math.max(...lngs) - Math.min(...lngs))]
+    // کمی دور از لبه: نقطه‌ای که اطرافش هم داخل باشد
+    if (inside(p, poly) && inside([p[0] + 0.002, p[1]], poly) && inside([p[0] - 0.002, p[1]], poly) && inside([p[0], p[1] + 0.002], poly) && inside([p[0], p[1] - 0.002], poly)) return p
+  }
+  return BOUNDS[city].areas[id].c
 }
-
-// مرکز هندسی هر ناحیه برای برچسب و حباب تعداد
-export function areaCenters(city) {
-  const shapes = areaShapes(city)
-  return Object.fromEntries(Object.entries(shapes).map(([id, pts]) => {
-    let a = 0, x = 0, y = 0
-    pts.forEach((p, i) => {
-      const q = pts[(i + 1) % pts.length]
-      const f = p[0] * q[1] - q[0] * p[1]
-      a += f; x += (p[0] + q[0]) * f; y += (p[1] + q[1]) * f
-    })
-    return [id, a ? [x / (3 * a), y / (3 * a)] : CITIES[city].areas.find((z) => z.id === id).at]
-  }))
-}
+export const areaAt = (city, at) => CITIES[city].areas.find((a) => inside(at, BOUNDS[city].areas[a.id].poly))
