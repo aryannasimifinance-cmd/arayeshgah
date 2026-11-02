@@ -11,6 +11,8 @@ import { PH, img } from '../lib/photos'
 import { BLANK, useAreaStats, useSearch } from '../lib/search'
 import { addDays, dateShort, dayNum, fa, haptic, isFriday, monthName, relDay, toDate, today } from '../lib/util'
 
+// نام کوتاه برای دکمه‌های کوچک تا همه یک‌خطی و وسط باشند
+const SHORT = { skin: 'پوست', wax: 'اپیلاسیون', spa: 'ماساژ و اسپا', pmu: 'آرایش دائم', color: 'رنگ و لایت', brow: 'ابرو و مژه' }
 const CITY_IMG = { tehran: './img/city-tehran.jpg', karaj: './img/city-karaj.jpg' }
 
 // برگه‌ی انتخاب ناحیه: نقشه‌ی شماتیک + جستجوی محله
@@ -154,7 +156,7 @@ export function Finder({ onMap }) {
         <div className="f-cats5">
           {CATS.map((c) => (
             <motion.button key={c.id} className={q.cat === c.id ? 'on' : ''} style={{ '--c': c.tone }} whileTap={{ scale: 0.92 }} onClick={() => { set({ cat: q.cat === c.id ? '' : c.id, sid: '' }); touch('what') }}>
-              <Glyph cat={c.id} s={18} w={1.5} /><b>{c.name}</b>
+              <Glyph cat={c.id} s={18} w={1.5} /><b>{SHORT[c.id] || c.name}</b>
             </motion.button>
           ))}
         </div>
