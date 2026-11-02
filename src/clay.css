@@ -1,0 +1,188 @@
+/* =================== ظاهر «جدید»: خلوت، کرم و بژ، مشکی پررنگ، یک رنگ مرجانی =================== */
+/* همه‌ی قانون‌ها زیر data-theme="clay" هستند؛ با «کلاسیک» همه‌چیز به حالت قبل برمی‌گردد */
+
+:root[data-theme="clay"] {
+  --paper: #F7F3EF; --paper-2: #EFE9E3; --card: #FFFFFF;
+  --ink: #151312; --ink-2: #5E5853; --muted: #A29B95;
+  --line: #EEE8E2; --line-2: #E2DAD2;
+  --rose: #F06A55; --rose-2: #E8533D; --rose-soft: #FDECE8;
+  --gold: #E8533D; --gold-2: #F4B5A8; --gold-soft: #F3EDE7;
+  --plum: #151312; --ok: #4E8A55;
+  --sand: #E8DCCF; --coral: #EE5A43;
+  --r: 24px;
+  --shadow: 0 24px 48px -28px rgba(30, 22, 16, .22);
+  --shadow-2: 0 2px 14px rgba(30, 22, 16, .05);
+  --en: 'Manrope', 'IRANSansX', sans-serif;
+}
+[data-theme="clay"] body { background: #F2EDE8; }
+[data-theme="clay"] h1, [data-theme="clay"] h2 { letter-spacing: -.4px; }
+
+/* برچسب‌های انگلیسی: بی‌سریف کوچک و فاصله‌دار به‌جای ایتالیک */
+[data-theme="clay"] .en { font-family: var(--en); font-style: normal; font-weight: 700; font-size: 11px !important; letter-spacing: .14em; text-transform: uppercase; color: var(--muted) !important; }
+[data-theme="clay"] .stage-side .en { font-size: 13px !important; color: var(--coral) !important; }
+[data-theme="clay"] .logo-txt i { font-family: var(--en); font-weight: 800; letter-spacing: .3em; color: var(--coral); }
+
+/* قاب */
+[data-theme="clay"] .stage { background: #F2EDE8; }
+[data-theme="clay"] .phone { background: var(--paper); box-shadow: 0 50px 90px -40px rgba(30, 22, 16, .35), 0 0 0 9px #fff, 0 0 0 10px #E6DFD8; }
+
+/* سطح‌ها: بدون خط دور، سفید با سایه‌ی خیلی نرم و گوشه‌ی گردتر */
+[data-theme="clay"] :is(.sc-row, .svc, .team-row, .pro-row, .pay, .shortcuts button, .search-in, .artist-card, .ag-card, .top-artist, .vrow, .pcard, .svc-pick, .note-row, .set-row, .score-sum, .slotcal, .tl-card, .appt-row, .cal-sum, .pro-stats span, .earn-top, .mini-bars, .client-list button, .mcard, .search-fake, .panel, .kpi, .day-strip button, .days button, .amen span, .salon-card, .chip, .seg, .cart-btn, .receipt) {
+  box-shadow: var(--shadow-2); border-color: transparent;
+}
+[data-theme="clay"] :is(.sc-row, .svc, .vrow, .pcard, .artist-card, .ag-card, .top-artist, .svc-pick, .slotcal, .score-sum, .panel, .kpi) { border-radius: 26px; }
+[data-theme="clay"] .chip { background: var(--card); border: 0; }
+[data-theme="clay"] .chip.on { background: var(--ink); color: #fff; }
+[data-theme="clay"] .chip.soft { box-shadow: none; background: transparent; }
+[data-theme="clay"] .chip.soft.on { background: var(--paper-2); color: var(--ink); }
+[data-theme="clay"] .seg { background: var(--paper-2); box-shadow: none; }
+[data-theme="clay"] .btn.ghost { border: 0; box-shadow: var(--shadow-2); }
+[data-theme="clay"] .svc.on { box-shadow: 0 0 0 2px var(--ink); }
+[data-theme="clay"] .sc-slots button, [data-theme="clay"] .scr-slots button, [data-theme="clay"] .mc-slots button { background: var(--paper-2); color: var(--ink); }
+[data-theme="clay"] .scr-slots button:hover { background: var(--ink); color: #fff; }
+[data-theme="clay"] .sc-offer, [data-theme="clay"] .pc-off, [data-theme="clay"] .mc-ph span { background: var(--coral); }
+[data-theme="clay"] .rating svg, [data-theme="clay"] .stars, [data-theme="clay"] .gold { color: var(--coral); }
+[data-theme="clay"] .badge.star { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .tier { color: var(--ink-2); font-family: var(--en); }
+
+/* نوار پایین: قرص شیشه‌ای شناور، تب فعال قرص خاکستری روشن (مثل اینستاگرام) */
+[data-theme="clay"] .tabbar { bottom: 14px; left: 14px; right: 14px; height: 64px; border-radius: 34px; background: rgba(255, 255, 255, .72); backdrop-filter: blur(22px) saturate(1.4); box-shadow: 0 14px 36px -12px rgba(30, 22, 16, .22), 0 0 0 1px rgba(255, 255, 255, .9) inset; }
+[data-theme="clay"] .tab-pill { inset: 8px 3px; border-radius: 22px; background: #ECE8E4; }
+[data-theme="clay"] .tabbar button.on:not(.center) { color: var(--ink); }
+[data-theme="clay"] .tabbar button { color: #8E8781; }
+[data-theme="clay"] .tabbar .center .tab-ico { width: 46px; height: 46px; margin-top: 0; border-radius: 50%; background: var(--coral) !important; color: #fff; box-shadow: 0 8px 18px -6px rgba(238, 90, 67, .6); }
+[data-theme="clay"] .tabbar .center .tab-name { display: none; }
+[data-theme="clay"] .center-dot { display: none; }
+[data-theme="clay"] .tab-ico .dot { background: var(--coral); }
+
+/* سربرگ‌ها */
+[data-theme="clay"] .top.plain h1, [data-theme="clay"] .sec-title h2 { font-weight: 700; }
+[data-theme="clay"] .top.plain h1 { font-size: 26px; }
+[data-theme="clay"] .sec-title { padding-top: 30px; }
+[data-theme="clay"] .sec-title button { color: var(--ink); font-weight: 700; }
+[data-theme="clay"] .search-head { background: var(--paper); }
+[data-theme="clay"] .mode-seg { background: #ECE8E4; }
+
+/* کارت جستجو: روشن، بدون عکس تیره؛ عکس‌ها فقط در کارت شهرها */
+[data-theme="clay"] .finder.cs { background: var(--card); color: var(--ink); box-shadow: var(--shadow); border-radius: 34px; }
+[data-theme="clay"] .finder.cs .finder-bg, [data-theme="clay"] .finder.cs .finder-shade { display: none; }
+[data-theme="clay"] .finder.cs .finder-top h1 { color: var(--ink); text-shadow: none; font-size: 22px; }
+[data-theme="clay"] .mg-glass { fill: var(--rose-soft); stroke: var(--ink); }
+[data-theme="clay"] .mg-ring { stroke: rgba(21, 19, 18, .12); }
+[data-theme="clay"] .mg-handle { stroke: var(--ink); }
+[data-theme="clay"] .mg-accent { stroke: var(--coral); }
+[data-theme="clay"] .mg-shine { stroke: #fff; }
+[data-theme="clay"] .mg-lit { fill: var(--coral); }
+[data-theme="clay"] .mg-dim { fill: rgba(21, 19, 18, .12); }
+[data-theme="clay"] .f-ring { background: conic-gradient(var(--coral) calc(var(--p) * 360deg), var(--line) 0); }
+[data-theme="clay"] .f-ring span { background: var(--card); color: var(--coral); }
+[data-theme="clay"] .finder.cs .f-search { background: var(--paper-2); border: 0; color: var(--muted); }
+[data-theme="clay"] .finder.cs .f-search input { color: var(--ink); }
+[data-theme="clay"] .finder.cs .f-search input::placeholder { color: var(--muted); }
+[data-theme="clay"] .finder.cs .f-step i { background: var(--paper-2); color: var(--ink-2); }
+[data-theme="clay"] .finder.cs .f-step i.ok { background: var(--coral); color: #fff; }
+[data-theme="clay"] .finder.cs .f-step b { color: var(--ink); }
+[data-theme="clay"] .finder.cs .f-cities img { filter: none; }
+[data-theme="clay"] .finder.cs .f-on { border-color: var(--ink); }
+[data-theme="clay"] .finder.cs .f-mapbtn { background: var(--paper-2); border: 0; color: var(--ink); }
+[data-theme="clay"] .f-areas-rail button { background: var(--paper-2); border: 0; color: var(--ink); }
+[data-theme="clay"] .f-areas-rail button small { color: var(--muted); opacity: 1; }
+[data-theme="clay"] .f-areas-rail button.on { background: var(--ink); color: #fff; }
+[data-theme="clay"] .f-areas-rail button.on small { color: rgba(255, 255, 255, .7); }
+[data-theme="clay"] .f-cats5 button { background: var(--paper-2); border: 0; color: var(--ink); }
+[data-theme="clay"] .f-cats5 button.on { background: var(--coral); color: #fff; box-shadow: 0 8px 16px -8px rgba(238, 90, 67, .7); }
+[data-theme="clay"] .chip.glass-d { background: var(--paper-2); color: var(--ink); border: 0; }
+[data-theme="clay"] .chip.glass-d small { color: var(--muted); }
+[data-theme="clay"] .chip.glass-d.on { background: var(--ink); color: #fff; }
+[data-theme="clay"] .finder.cs .f-when button { background: var(--paper-2); border: 0; color: var(--ink); }
+[data-theme="clay"] .finder.cs .f-when button.on { background: var(--ink); color: #fff; }
+[data-theme="clay"] .finder.cs .f-parts button { color: var(--ink-2); }
+[data-theme="clay"] .finder.cs .f-parts button.on { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .finder.cs .f-cta { background: var(--ink); color: #fff; animation: none; }
+[data-theme="clay"] .finder.cs .f-cta b { color: var(--gold-2); }
+[data-theme="clay"] .finder.cs .f-cta.ready { background: var(--coral); }
+[data-theme="clay"] .finder.cs .f-cta.ready b { color: #fff; }
+[data-theme="clay"] .f-suggest { box-shadow: var(--shadow); }
+
+/* کاشی‌ها: عکس روی کارت سفید با برچسب زیر عکس به‌جای سایه‌ی تیره */
+[data-theme="clay"] .qtiles button { height: auto; display: flex; flex-direction: column; padding: 6px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow-2); }
+[data-theme="clay"] .qtiles img { position: static; height: 74px; border-radius: 16px; }
+[data-theme="clay"] .qtiles.three img { height: 64px; }
+[data-theme="clay"] .qtiles b { position: static; background: none; color: var(--ink); padding: 8px 6px 4px; font-size: 12.5px; }
+[data-theme="clay"] .qtiles.three b { font-size: 11.5px; }
+
+/* کارت‌های تیره ← کرم */
+[data-theme="clay"] :is(.next-big, .next-client, .wallet-card, .next-card) { background: var(--sand); color: var(--ink); box-shadow: none; }
+[data-theme="clay"] :is(.next-big, .next-client) > small, [data-theme="clay"] .wallet-card small, [data-theme="clay"] .nc-body small { color: var(--coral); }
+[data-theme="clay"] :is(.next-big, .next-card) .nc-date { background: rgba(255, 255, 255, .6); }
+[data-theme="clay"] .nb-row > div:last-child span, [data-theme="clay"] .nc-row small, [data-theme="clay"] .nc-body .muted { color: var(--ink-2); opacity: 1; }
+[data-theme="clay"] .nc-actions button { background: rgba(255, 255, 255, .65); color: var(--ink); }
+[data-theme="clay"] .nc-actions button.main { background: var(--ink); color: #fff; }
+[data-theme="clay"] .nc-note { background: rgba(255, 255, 255, .55); }
+[data-theme="clay"] .wallet-card::after { display: none; }
+[data-theme="clay"] .wallet-card button { background: var(--ink); color: #fff; }
+[data-theme="clay"] .review-nudge { background: var(--rose-soft); }
+[data-theme="clay"] .done-mark { background: var(--coral); color: #fff; box-shadow: 0 0 0 12px var(--rose-soft); }
+[data-theme="clay"] .done { background: var(--paper); }
+[data-theme="clay"] .manifest, [data-theme="clay"] .sell-cta, [data-theme="clay"] .explain { background: var(--sand); color: var(--ink); }
+[data-theme="clay"] .feed-cta > div { background: linear-gradient(90deg, rgba(247, 243, 239, 0), rgba(247, 243, 239, .92) 70%); color: var(--ink); }
+[data-theme="clay"] .feed-cta .fc-go { background: var(--ink); color: #fff; }
+[data-theme="clay"] .feed-cta .logo { color: var(--ink); }
+
+/* ورود */
+[data-theme="clay"] .gate-bg { display: none; }
+[data-theme="clay"] .gate { background: var(--paper); }
+[data-theme="clay"] .login-hero { margin: 12px 12px 0; border-radius: 30px; height: 190px; }
+[data-theme="clay"] .login-hero > div { background: linear-gradient(transparent 40%, rgba(21, 19, 18, .55)); }
+[data-theme="clay"] .in { background: var(--card); box-shadow: var(--shadow-2); }
+[data-theme="clay"] .in:focus { box-shadow: 0 0 0 2px var(--ink); }
+[data-theme="clay"] .demo-bar { background: none; border-color: var(--line-2); }
+[data-theme="clay"] .wiz-steps span.on i { background: var(--coral); }
+[data-theme="clay"] .otp span { background: var(--card); box-shadow: var(--shadow-2); }
+[data-theme="clay"] .otp span.cur { box-shadow: 0 0 0 2px var(--ink); }
+[data-theme="clay"] .city-pick button { background: var(--card); box-shadow: var(--shadow-2); }
+
+/* صفحه‌ی سالن و ویزارد */
+[data-theme="clay"] .salon-head { border-radius: 30px; box-shadow: var(--shadow); }
+[data-theme="clay"] .offer-strip { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .book-bar { background: rgba(255, 255, 255, .85); backdrop-filter: blur(18px); border-top: 0; box-shadow: 0 -10px 30px -18px rgba(30, 22, 16, .25); }
+[data-theme="clay"] .hg.free { background: #EEF5EC; }
+[data-theme="clay"] .wz-steps span.on i { background: var(--coral); }
+[data-theme="clay"] .wz-foot { border-top: 0; box-shadow: 0 -10px 30px -18px rgba(30, 22, 16, .25); }
+[data-theme="clay"] .rc-dep { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .assigned { background: var(--paper-2); }
+[data-theme="clay"] .any-ico { background: var(--rose-soft); color: var(--coral); }
+[data-theme="clay"] .slots button { box-shadow: var(--shadow-2); }
+
+/* نقشه */
+[data-theme="clay"] .citymap .leaflet-tile-pane, [data-theme="clay"] .mini-map .leaflet-tile-pane { filter: grayscale(1) brightness(1.08) contrast(.82); opacity: .85; }
+[data-theme="clay"] .map-sheet { background: rgba(247, 243, 239, .96); }
+[data-theme="clay"] .map-search, [data-theme="clay"] .map-ctrl button { box-shadow: 0 10px 30px -14px rgba(30, 22, 16, .3); }
+[data-theme="clay"] .chip.glass { box-shadow: var(--shadow-2); }
+
+/* پنل آرتیست */
+[data-theme="clay"] .tl-dot { box-shadow: 0 0 0 4px var(--paper); }
+
+/* داشبوردها: نوار کناری روشن */
+[data-theme="clay"] .dash { background: var(--paper); }
+[data-theme="clay"] .dash-side, [data-theme="clay"] .admin .dash-side { background: var(--card); color: var(--ink); box-shadow: 1px 0 0 var(--line); }
+[data-theme="clay"] .dash-side .logo { color: var(--ink); }
+[data-theme="clay"] .ds-salon { background: var(--paper); }
+[data-theme="clay"] .ds-salon small { color: var(--muted); opacity: 1; }
+[data-theme="clay"] .dash-side nav button { color: var(--ink-2); }
+[data-theme="clay"] .dash-side nav button:hover { background: var(--paper); color: var(--ink); }
+[data-theme="clay"] .dash-side nav button.on { background: var(--ink); color: #fff; }
+[data-theme="clay"] .dash-side nav i { background: var(--coral); }
+[data-theme="clay"] .ds-out { color: var(--muted); }
+[data-theme="clay"] .own-ico { background: var(--coral); color: #fff; }
+[data-theme="clay"] .dash-head { background: rgba(247, 243, 239, .9); border-bottom: 0; }
+[data-theme="clay"] .kpi.hl { background: var(--ink); }
+[data-theme="clay"] .kpi.hl > div svg { color: var(--coral); }
+[data-theme="clay"] .bars i { background: var(--sand); }
+[data-theme="clay"] .bars i.on, [data-theme="clay"] .bars.stacked i.b-app { background: var(--coral); }
+[data-theme="clay"] .mini-bars i { background: var(--sand); }
+[data-theme="clay"] .mini-bars i.on { background: var(--coral); }
+[data-theme="clay"] .load i { background: var(--coral); }
+[data-theme="clay"] .tbl tbody tr:hover { background: var(--paper); }
+[data-theme="clay"] .theme-toggle { background: var(--card); }
+[data-theme="clay"] .dash-side .theme-toggle { margin: 0 6px; background: var(--paper); box-shadow: none; }

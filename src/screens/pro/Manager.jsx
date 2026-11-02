@@ -4,6 +4,7 @@ import { useStore } from '../../store'
 import { Avatar, Badge, Empty, Icon, Sheet, Stars } from '../../components/ui'
 import { Portrait } from '../../components/Art'
 import { Logo } from '../../components/Logo'
+import { ThemeToggle } from '../../lib/theme'
 import { CAT, SV, fmtDur } from '../../lib/catalog'
 import { SOURCE_NAME, agenda, clientBook, dayTotals, favSvc } from '../../lib/agenda'
 import { KINDS } from '../../lib/seed'
@@ -51,6 +52,7 @@ export default function Manager({ id }) {
             </button>
           ))}
         </nav>
+        <ThemeToggle />
         <button className="ds-out" onClick={logout}><Icon n="logout" s={16} /> خروج</button>
       </aside>
       {menu && <div className="ds-scrim" onClick={() => setMenu(false)} />}

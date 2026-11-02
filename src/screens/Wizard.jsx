@@ -48,7 +48,8 @@ function Flow({ opts, onClose }) {
   const preset = opts.artist && db.artists.find((a) => a.id === opts.artist)
   const cats = v.cats.filter((c) => v.svc.some((x) => SV[x.sid].cat === c) && (!preset || preset.cats.includes(c)))
   const [cat, setCat] = useState(svc[0] ? SV[svc[0]].cat : cats[0])
-  const first = svc.length ? (opts.artist ? 2 : 1) : 0
+  // از تقویم صفحه‌ی سالن با ساعت انتخاب‌شده آمده: مستقیم تأیید و پرداخت
+  const first = svc.length ? (opts.start != null && opts.date ? 3 : opts.artist ? 2 : 1) : 0
   const [step, setStep] = useState(first)
   // خلاصه‌ی نوبت ثبت‌شده؛ بعد از ثبت، آن ساعت دیگر آزاد نیست پس از وضعیت زنده خوانده نمی‌شود
   const [done, setDone] = useState(null)

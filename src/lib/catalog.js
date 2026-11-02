@@ -15,7 +15,10 @@ export const CATS = [
 ]
 export const CAT = Object.fromEntries(CATS.map((c) => [c.id, c]))
 
-const S = (id, cat, name, dur, price, note) => ({ id, cat, name, dur, price, note })
+// dur = حداقل زمان معمول (نوبت با همین بلوک می‌شود)، upto = حداکثر معمول؛ برگرفته از نوبت‌دهی سالن‌ها
+const S = (id, cat, name, dur, price, note) => ({ id, cat, name, dur: DUR[id][0], upto: DUR[id][1], price, note })
+const DUR = {'cut': [30, 60], 'blow': [30, 45], 'style': [60, 120], 'keratin': [120, 240], 'protein': [60, 120], 'ext': [150, 240], 'root': [60, 90], 'fullcolor': [90, 150], 'highlight': [120, 240], 'balayage': [180, 270], 'ombre': [180, 240], 'toner': [30, 45], 'mani': [30, 45], 'pedi': [45, 60], 'gel': [30, 60], 'acrylic': [90, 150], 'refill': [60, 90], 'nailart': [30, 60], 'face': [15, 30], 'brow': [15, 30], 'browlam': [45, 60], 'lashlift': [45, 75], 'lashext': [90, 150], 'henna': [20, 30], 'clean': [60, 90], 'hydra': [45, 60], 'peel': [30, 45], 'microneedle': [60, 75], 'mask': [30, 45], 'mkparty': [60, 90], 'mkday': [30, 45], 'mkengage': [90, 120], 'mklesson': [60, 120], 'brideFull': [300, 420], 'brideTest': [90, 120], 'brideMate': [90, 120], 'waxleg': [30, 45], 'waxfull': [60, 90], 'laserface': [15, 30], 'laserfull': [60, 90], 'swedish': [60, 90], 'relax': [60, 90], 'deep': [60, 90], 'stone': [75, 90], 'lymph': [60, 75], 'prenatal': [60, 60], 'facemassage': [30, 45], 'microblade': [120, 180], 'powder': [120, 180], 'lipblush': [120, 150], 'liner': [60, 120]}
+
 export const SERVICES = [
   // مو
   S('cut', 'hair', 'کوتاهی و فرم‌دهی', 60, 450000),
@@ -116,3 +119,8 @@ export const fmtDur = (m) => {
   const fa = (n) => n.toLocaleString('fa-IR')
   return [h && `${fa(h)} ساعت`, r && `${fa(r)} دقیقه`].filter(Boolean).join(' و ')
 }
+
+// «حداقل ۳۰ دقیقه · تا ۱ ساعت»
+export const durRange = (s) => (s.upto > s.dur ? `${fmtDur(s.dur)} تا ${fmtDur(s.upto)}` : fmtDur(s.dur))
+// بلوک تقویم: مضرب نیم‌ساعت
+export const slotsOf = (min) => Math.ceil(min / 30)

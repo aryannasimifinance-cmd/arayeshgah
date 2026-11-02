@@ -8,6 +8,10 @@ import './v2.css'
 import './v3.css'
 import './v4.css'
 import './v5.css'
+import './clay.css'
+import { applyTheme } from './lib/theme'
+
+applyTheme()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

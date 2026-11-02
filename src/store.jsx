@@ -106,7 +106,7 @@ export function StoreProvider({ children }) {
     // b: { salon, artist, svc[], date, start, dur, price, paid, method, note }
     book: (b) => {
       const id = uid('b')
-      setDB((db) => ({ bookings: [...db.bookings, { ...b, id, status: 'confirmed', reviewed: false, user: 'me', t: Date.now() }] }))
+      setDB((db) => ({ bookings: [...db.bookings, { ...b, id, status: 'confirmed', reviewed: false, user: 'me', clientName: state.me?.name, clientPhone: state.me?.phone, t: Date.now() }] }))
       setMe((m) => ({
         wallet: b.method === 'wallet' ? m.wallet - b.paid : m.wallet,
         notes: [{ id: uid('n'), text: 'نوبت شما ثبت شد. یک روز قبل یادآوری می‌فرستیم.', t: Date.now(), read: false }, ...m.notes],

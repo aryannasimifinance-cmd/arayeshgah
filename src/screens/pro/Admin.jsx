@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useStore } from '../../store'
 import { Avatar, Empty, Icon, Sheet } from '../../components/ui'
 import { Logo } from '../../components/Logo'
+import { ThemeToggle } from '../../lib/theme'
 import { CITIES, areaOf } from '../../lib/geo'
 import { KINDS } from '../../lib/seed'
 import { agentLedger, entityFee, lastDays, salonDay, shopDay } from '../../lib/market'
@@ -59,6 +60,7 @@ export default function Admin() {
             </button>
           ))}
         </nav>
+        <ThemeToggle />
         <button className="ds-out" onClick={logout}><Icon n="logout" s={16} /> خروج</button>
       </aside>
       {menu && <div className="ds-scrim" onClick={() => setMenu(false)} />}

@@ -4,6 +4,7 @@ import { Toasts } from './components/ui'
 import { Logo } from './components/Logo'
 import Gate from './screens/Gate'
 import Shell from './screens/Shell'
+import { ThemeToggle } from './lib/theme'
 
 // پنل‌ها جدا بارگذاری می‌شوند تا اپ مشتری سبک بماند
 const ArtistApp = lazy(() => import('./screens/pro/ArtistApp'))
@@ -33,6 +34,7 @@ export default function App() {
         <Logo size={26} />
         <em className="en">Beauty, beautifully booked.</em>
         <p>رزرو سالن‌های زیبایی، اسپا و آرتیست‌ها در تهران و کرج.</p>
+        <ThemeToggle />
       </aside>
       <div className="phone">
         {role === 'customer' && me ? <Shell /> : role === 'artist' ? <Suspense fallback={loading}><ArtistApp id={session.id} /></Suspense> : <Gate />}

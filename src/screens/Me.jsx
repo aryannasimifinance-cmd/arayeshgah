@@ -4,6 +4,7 @@ import { useNav } from './Shell'
 import { Avatar, Empty, Icon, Seg } from '../components/ui'
 import { ArtistCard, SalonCard } from '../components/cards'
 import { Mark } from '../components/Logo'
+import { ThemeToggle } from '../lib/theme'
 import { CITIES, CITY_IDS } from '../lib/geo'
 import { ago, fa, toman } from '../lib/util'
 
@@ -53,6 +54,7 @@ export default function Me({ asPage }) {
         <div className="set-row"><span>شهر</span><Seg id="mecity" items={CITY_IDS.map((c) => [c, CITIES[c].name])} value={me.city} onChange={(c) => updateMe({ city: c, area: null })} /></div>
         <button className="set-row" onClick={() => nav.go('visits')}><span><Icon n="cal" s={17} /> نوبت‌های من</span><Icon n="fwd" s={16} /></button>
         <button className="set-row" onClick={() => toast({ icon: '💼', text: 'پنل سالن‌دارها در نسخه‌ی بعد' })}><span><Icon n="home" s={17} /> سالن دارید؟ به بیوتی‌ست بپیوندید</span><Icon n="fwd" s={16} /></button>
+        <div className="set-row"><span>ظاهر اپ</span><ThemeToggle /></div>
         <button className="set-row" onClick={logout}><span><Icon n="logout" s={17} /> خروج</span></button>
         <button className="set-row muted" onClick={() => { if (confirm('همه‌ی داده‌های دمو پاک شود؟')) reset() }}><span><Icon n="gear" s={17} /> بازنشانی دمو</span></button>
       </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { useNav } from './Shell'
@@ -7,11 +7,67 @@ import { Glyph, Portrait } from '../components/Art'
 import { img } from '../lib/photos'
 import { Heart } from '../components/cards'
 import { MiniMap } from '../components/Maps'
-import { AMEN, CAT, CRITERIA, SV, fmtDur } from '../lib/catalog'
+import { AMEN, CAT, CRITERIA, SV, fmtDur, slotsOf } from '../lib/catalog'
 import { areaOf } from '../lib/geo'
 import { KINDS, tierLabel } from '../lib/seed'
 import { isOpen } from '../lib/search'
-import { ago, fa, haptic, hh, short, toman } from '../lib/util'
+import { addDays, ago, dayNum, fa, haptic, hh, relDay, short, today, toman, wdShort } from '../lib/util'
+import { busyMap, canDo, freeStarts } from '../lib/seed'
+
+// تقویم نیم‌ساعته‌ی سالن: هر خانه نیم ساعت؛ شروع آزاد = آرتیستی هست که به اندازه‌ی کل خدمات وقت خالی پشت‌سرهم دارد
+export function SlotCalendar({ s, team, svc, dur, pick, setPick }) {
+  const { db } = useStore()
+  const days = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(today(), i)), [])
+  const able = team.filter((a) => !svc.length || canDo(a, svc))
+  const pros = pick.artist === 'any' ? able : able.filter((a) => a.id === pick.artist)
+  const need = Math.max(30, dur)
+  const len = slotsOf(need) / 2
+  const set = (p) => setPick((x) => ({ ...x, ...p }))
+  const grid = useMemo(() => {
+    const starts = new Set(), busyAll = new Set()
+    const maps = pros.map((a) => busyMap(a, pick.date, db.bookings))
+    pros.forEach((a) => freeStarts(s, a, pick.date, need, db.bookings).forEach((h) => starts.add(h)))
+    const now = new Date(), nowH = now.getHours() + now.getMinutes() / 60
+    const out = []
+    for (let h = s.open; h < s.close; h += 0.5) {
+      const past = pick.date === today() && h <= nowH
+      const busy = maps.length && maps.every((m) => m.has(h))
+      out.push({ h, state: past ? 'past' : starts.has(h) ? 'free' : busy || !maps.length ? 'busy' : 'short' })
+      if (busy) busyAll.add(h)
+    }
+    return out
+  }, [db.bookings, pick.date, pick.artist, svc.join(), s.id])
+  const freeN = grid.filter((g) => g.state === 'free').length
+  const inSel = (h) => pick.start != null && h >= pick.start && h < pick.start + len
+  // اگر ساعت انتخابی دیگر جا ندارد، پاکش کن
+  useEffect(() => { if (pick.start != null && !grid.some((g) => g.h === pick.start && g.state === 'free')) set({ start: null }) }, [grid])
+  return (
+    <div className="slotcal">
+      <div className="sc-title2"><b>تقویم نوبت‌ها</b><small className="muted">{svc.length ? `بلوک ${fmtDur(slotsOf(need) * 30)} (${fa(slotsOf(need))} خانه‌ی نیم‌ساعته)` : 'برای دیدن ساعت مناسب، اول خدمت را انتخاب کنید'}</small></div>
+      <div className="chips">
+        <button className={`chip ${pick.artist === 'any' ? 'on' : ''}`} onClick={() => set({ artist: 'any', start: null })}>هر آرتیستی</button>
+        {able.map((a) => <button key={a.id} className={`chip ${pick.artist === a.id ? 'on' : ''}`} onClick={() => set({ artist: a.id, start: null })}><Portrait a={a} size={20} ring={false} /> {a.name.split(' ')[0]}</button>)}
+        {!able.length && <span className="muted small">هیچ آرتیستی همه‌ی این خدمات را با هم انجام نمی‌دهد</span>}
+      </div>
+      <div className="days">
+        {days.map((d) => (
+          <button key={d} className={pick.date === d ? 'on' : ''} onClick={() => set({ date: d, start: null })}>
+            <small>{relDay(d) === 'امروز' || relDay(d) === 'فردا' ? relDay(d) : wdShort(d)}</small><b>{dayNum(d)}</b>
+          </button>
+        ))}
+      </div>
+      <div className="half-grid">
+        {grid.map((g) => (
+          <button key={g.h} disabled={g.state !== 'free'} className={`hg ${g.state} ${inSel(g.h) ? 'sel' : ''} ${pick.start === g.h ? 'head' : ''}`}
+            onClick={() => { haptic(8); set({ start: g.h }) }} title={g.state === 'short' ? 'وقت خالی برای کل خدمت کافی نیست' : ''}>
+            {hh(g.h)}
+          </button>
+        ))}
+      </div>
+      <div className="hg-legend"><span><i className="free" />آزاد ({fa(freeN)})</span><span><i className="short" />وقت کافی نیست</span><span><i className="busy" />پر</span><span><i className="sel" />انتخاب شما</span></div>
+    </div>
+  )
+}
 
 export function ReviewItem({ r, showSalon, showArtist = true }) {
   const { db } = useStore()
@@ -63,6 +119,7 @@ export default function Salon({ id }) {
   const [ph, setPh] = useState(0)
   const [cart, setCart] = useState([])
   const [cat, setCat] = useState(s.cats[0])
+  const [pick, setPick] = useState({ artist: 'any', date: today(), start: null })
   const area = areaOf(s.city, s.area)
   const team = s.artists.map((a) => db.artists.find((x) => x.id === a))
   const reviews = useMemo(() => db.reviews.filter((r) => r.salon === id).sort((a, b) => b.t - a.t), [db.reviews, id])
@@ -109,7 +166,7 @@ export default function Salon({ id }) {
               const sv = SV[x.sid], on = cart.includes(x.sid)
               return (
                 <motion.button key={x.sid} className={`svc ${on ? 'on' : ''}`} layout onClick={() => toggle(x.sid)}>
-                  <div><b>{sv.name}</b><small className="muted">{fmtDur(sv.dur)}{sv.note ? ` · ${sv.note}` : ''}</small></div>
+                  <div><b>{sv.name}</b><small className="muted"><Icon n="clock" s={12} /> حداقل {fmtDur(sv.dur)}{sv.upto > sv.dur ? ` · تا ${fmtDur(sv.upto)}` : ''}{sv.note ? ` · ${sv.note}` : ''}</small></div>
                   <span className="svc-price">{short(x.price)}</span>
                   <span className="svc-add">{on ? <Icon n="check" s={16} w={2.4} /> : <Icon n="plus" s={16} w={2} />}</span>
                 </motion.button>
@@ -117,6 +174,7 @@ export default function Salon({ id }) {
             })}
           </div>
           <p className="muted small">قیمت‌ها به تومان و پایه‌اند؛ قیمت آرتیست‌های ستاره کمی بیشتر است.</p>
+          <div id="slot-cal"><SlotCalendar s={s} team={team} svc={cart} dur={dur} pick={pick} setPick={setPick} /></div>
         </section>
       )}
 
@@ -158,9 +216,14 @@ export default function Salon({ id }) {
       <AnimatePresence>
         <motion.div className="book-bar" initial={{ y: 80 }} animate={{ y: 0 }}>
           {cart.length ? (
-            <div className="bb-sum"><b>{fa(cart.length)} خدمت · {toman(total)}</b><small>{fmtDur(dur)}</small></div>
-          ) : <div className="bb-sum"><b>خدمات رو انتخاب کنید</b><small>یا مستقیم وقت بگیرید</small></div>}
-          <motion.button className="btn primary" whileTap={{ scale: 0.96 }} onClick={() => nav.book({ salon: s.id, svc: cart })}>رزرو نوبت</motion.button>
+            <div className="bb-sum"><b>{fa(cart.length)} خدمت · {toman(total)}</b><small>{pick.start != null ? `${relDay(pick.date)} · ${hh(pick.start)} تا ${hh(pick.start + slotsOf(dur) / 2)}` : `حداقل ${fmtDur(dur)} · زمان را انتخاب کنید`}</small></div>
+          ) : <div className="bb-sum"><b>خدمت را انتخاب کنید</b><small>بعد از تقویم، ساعت آزاد را بزنید</small></div>}
+          <motion.button className="btn primary" whileTap={{ scale: 0.96 }} disabled={!cart.length}
+            onClick={() => {
+              if (tab !== 'svc') return setTab('svc')
+              if (pick.start == null) return document.getElementById('slot-cal')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              nav.book({ salon: s.id, svc: cart, artist: pick.artist === 'any' ? undefined : pick.artist, date: pick.date, start: pick.start })
+            }}>{pick.start != null && cart.length ? 'ادامه و پرداخت' : 'انتخاب زمان'}</motion.button>
         </motion.div>
       </AnimatePresence>
     </div>

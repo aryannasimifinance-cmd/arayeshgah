@@ -53,7 +53,7 @@ export function agenda(db, artist, date, me) {
   // رزروهای ثبت‌شده در اپ یا دستی
   db.bookings.filter((b) => b.artist === artist.id && b.date === date && b.status !== 'cancelled').forEach((b) => {
     out.push({ id: b.id, artist: artist.id, salon: b.salon, date, start: b.start, dur: b.dur, svc: b.svc, price: b.price, paid: b.paid, note: b.note, real: true,
-      client: b.user === 'me' ? { id: 'me', name: me?.name || 'مشتری بیوتی‌ست', phone: me?.phone || '', hue: me?.hue } : b.client, source: b.user === 'me' ? 'app' : b.source || 'walkin' })
+      client: b.user === 'me' ? { id: 'me', name: b.clientName || me?.name || 'مشتری بیوتی‌ست', phone: b.clientPhone || me?.phone || '', hue: me?.hue ?? 340 } : b.client, source: b.user === 'me' ? 'app' : b.source || 'walkin' })
   })
   const t = today(), n = nowH()
   return {
